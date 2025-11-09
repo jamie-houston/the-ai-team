@@ -15,29 +15,30 @@
 - **Optional**: [Context7 MCP](docs/dependencies.md) for enhanced documentation access
 
 ### 1. Install the Agents
+
+Clone the repository:
 ```bash
 git clone https://github.com/vijaythecoder/awesome-claude-agents.git
+cd awesome-claude-agents
 ```
 
 #### Option A: Symlink (Recommended - auto-updates)
 
 **macOS/Linux:**
 ```bash
-# Create agents directory if it doesn't exist (preserves existing agents)
-mkdir -p ~/.claude/agents
-
-# Symlink the awesome-claude-agents collection
-ln -sf "$(pwd)/awesome-claude-agents/agents/" ~/.claude/agents/awesome-claude-agents
+# Run the linking script
+./link_agents.sh
 ```
 
-**Windows (PowerShell):**
-```powershell
-# Create agents directory
-New-Item -Path "$env:USERPROFILE\.claude\agents" -ItemType Directory -Force
+This will symlink all agent directories to `~/.claude/agents/` making them globally available. The agents will auto-update when you pull new changes from the repository.
 
-# Create symlink
-cmd /c mklink /D "$env:USERPROFILE\.claude\agents\awesome-claude-agents" "$(Get-Location)\awesome-claude-agents\agents"
+To unlink later:
+```bash
+./unlink_agents.sh
 ```
+
+**Windows:**
+*Symlink script for Windows coming soon. Use Option B (copy) for now.*
 
 #### Option B: Copy (Static - no auto-updates)
 ```bash
@@ -45,13 +46,13 @@ cmd /c mklink /D "$env:USERPROFILE\.claude\agents\awesome-claude-agents" "$(Get-
 mkdir -p ~/.claude/agents
 
 # Copy all agents
-cp -r awesome-claude-agents/agents ~/.claude/agents/awesome-claude-agents
+cp -r agents/* ~/.claude/agents/
 ```
 
 ### 2. Verify Installation
 ```bash
 claude /agents
-# Should show all 24 agents.
+# Should show all 45 agents across core, orchestrators, specialized, and universal categories.
 ```
 
 ### 3. Initialize Your Project
@@ -87,7 +88,7 @@ The @agent-team-configurator automatically sets up your perfect AI development t
 - **[Project Analyst](agents/orchestrators/project-analyst.md)** - Technology stack detection specialist who enables intelligent agent routing
 - **[Team Configurator](agents/orchestrators/team-configurator.md)** - AI team setup expert who detects your stack and configures optimal agent mappings
 
-### 💼 Framework Specialists (13 agents)
+### 💼 Framework Specialists (22 agents)
 - **Laravel (2 agents)**
   - **[Backend Expert](agents/specialized/laravel/laravel-backend-expert.md)** - Comprehensive Laravel development with MVC, services, and Eloquent patterns
   - **[Eloquent Expert](agents/specialized/laravel/laravel-eloquent-expert.md)** - Advanced ORM optimization, complex queries, and database performance
@@ -113,13 +114,25 @@ The @agent-team-configurator automatically sets up your perfect AI development t
 - **[API Architect](agents/universal/api-architect.md)** - RESTful design, GraphQL, and framework-agnostic API architecture
 - **[Tailwind Frontend Expert](agents/universal/tailwind-css-expert.md)** - Tailwind CSS styling, utility-first development, and responsive components
 
-### 🔧 Core Team (4 agents)
+### 🔧 Core Team (16 agents)
+- **[Analytics Specialist](agents/core/analytics-specialist.md)** - Product analytics, user behavior tracking, and data-driven insights
+- **[Business Analyst](agents/core/business-analyst.md)** - PRD analysis, requirements refinement, and user story creation
 - **[Code Archaeologist](agents/core/code-archaeologist.md)** - Explores, documents, and analyzes unfamiliar or legacy codebases
 - **[Code Reviewer](agents/core/code-reviewer.md)** - Rigorous security-aware reviews with severity-tagged reports
-- **[Performance Optimizer](agents/core/performance-optimizer.md)** - Identifies bottlenecks and applies optimizations for scalable systems
-- **[Documentation Specialist](agents/core/documentation-specialist.md)** - Crafts comprehensive READMEs, API specs, and technical documentation
+- **[Database Architect](agents/core/database-architect.md)** - Schema design, migration strategies, and database optimization
+- **[Documentation Specialist](agents/core/documentation-specialist.md)** - Comprehensive READMEs, API specs, and technical documentation
+- **[Incident Responder](agents/core/incident-responder.md)** - Incident triage, debugging, and post-mortem analysis
+- **[Integration Engineer](agents/core/integration-engineer.md)** - Third-party API integrations, OAuth, payments, and webhooks
+- **[Integration Tester](agents/core/integration-tester.md)** - E2E testing, cross-browser testing, and API contract validation
+- **[Monitoring Specialist](agents/core/monitoring-specialist.md)** - Observability, alerting, and production monitoring setup
+- **[Performance Optimizer](agents/core/performance-optimizer.md)** - Bottleneck identification and scalable system optimization
+- **[QA Coordinator](agents/core/qa-coordinator.md)** - Test strategy, quality gates, and comprehensive QA orchestration
+- **[Release Manager](agents/core/release-manager.md)** - Release planning, deployment coordination, and rollback procedures
+- **[Security Auditor](agents/core/security-auditor.md)** - OWASP Top 10, vulnerability scanning, and compliance verification
+- **[Sprint Planner](agents/core/sprint-planner.md)** - Agile planning, story estimation, and velocity tracking
+- **[UX/UI Designer](agents/core/ux-ui-designer.md)** - User flows, wireframes, design systems, and component specifications
 
-**Total: 24 specialized agents** working together to build your projects!
+**Total: 45 specialized agents** working together to build your projects!
 
 [Browse all agents →](agents/)
 
