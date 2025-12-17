@@ -4,15 +4,19 @@ Create integration tests for the API endpoints.
 
 ## Your Task
 
-1. Set up WebApplicationFactory with in-memory database
-2. Create test class for each controller
-3. Add tests for:
+1. Set up WebApplicationFactory with test database:
+   - **IMPORTANT**: Use the **same database provider** as production with an in-memory connection
+   - For SQLite: Use `DataSource=:memory:` (keep connection open during test lifetime)
+   - Do NOT mix providers (e.g., EF InMemory + SQLite causes "multiple providers" errors)
+2. Ensure Program.cs has `public partial class Program { }` for test discoverability
+3. Create test class for each controller
+4. Add tests for:
    - Happy path (create, read, update, delete)
    - Not found cases (404)
    - Validation failures (400)
    - Any special endpoints (summary, filter, etc.)
-4. Run `dotnet test` and ensure all pass
-5. Commit: "test: add integration tests for [Resource] API"
+5. Run `dotnet test` and ensure all pass
+6. Commit: "test: add integration tests for [Resource] API"
 
 ## IMPORTANT
 

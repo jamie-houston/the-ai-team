@@ -35,6 +35,10 @@ Run these commands:
 dotnet new sln -n ProjectName
 dotnet new webapi -n ProjectName.Api -o src/ProjectName.Api
 dotnet new xunit -n ProjectName.Tests -o tests/ProjectName.Tests
+
+# IMPORTANT: Check for nested folders (dotnet new sometimes creates src/ProjectName.Api/src/ProjectName.Api/)
+# If nested, flatten by moving contents up and removing extra directory
+
 dotnet sln add src/ProjectName.Api
 dotnet sln add tests/ProjectName.Tests
 dotnet add tests/ProjectName.Tests reference src/ProjectName.Api
@@ -43,6 +47,13 @@ dotnet add tests/ProjectName.Tests reference src/ProjectName.Api
 rm src/ProjectName.Api/WeatherForecast.cs
 rm src/ProjectName.Api/Controllers/WeatherForecastController.cs
 ```
+
+### 2a. Enable Test Discovery
+Add the following line at the bottom of `src/ProjectName.Api/Program.cs`:
+```csharp
+public partial class Program { }
+```
+This allows WebApplicationFactory to discover the entry point for integration tests.
 
 ### 3. Add Common Packages
 ```bash

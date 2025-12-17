@@ -11,12 +11,14 @@ Create the .NET solution structure based on the PRD.
    └── tests/[ProjectName].Tests/
    ```
 2. Run `dotnet new` commands (sln, webapi, xunit)
+   - **Note**: `dotnet new webapi -o src/ProjectName.Api` may create `src/ProjectName.Api/src/ProjectName.Api/`. Check and flatten if needed.
 3. **Remove template files**: Delete WeatherForecast.cs and WeatherForecastController.cs
 4. Add package references (EF Core, test libraries)
 5. Wire up project references
 6. Configure appsettings.json with connection string
-7. Verify `dotnet build` succeeds
-8. Commit: "chore: scaffold [ProjectName] solution"
+7. **Add test entry point**: Append `public partial class Program { }` to Program.cs for WebApplicationFactory discoverability
+8. Verify `dotnet build` succeeds
+9. Commit: "chore: scaffold [ProjectName] solution"
 
 ## IMPORTANT
 
