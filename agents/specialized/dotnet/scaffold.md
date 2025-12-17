@@ -38,6 +38,10 @@ dotnet new xunit -n ProjectName.Tests -o tests/ProjectName.Tests
 dotnet sln add src/ProjectName.Api
 dotnet sln add tests/ProjectName.Tests
 dotnet add tests/ProjectName.Tests reference src/ProjectName.Api
+
+# Remove template files
+rm src/ProjectName.Api/WeatherForecast.cs
+rm src/ProjectName.Api/Controllers/WeatherForecastController.cs
 ```
 
 ### 3. Add Common Packages
