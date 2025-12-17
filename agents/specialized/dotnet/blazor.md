@@ -293,9 +293,49 @@ src/ProjectName.Web/
 └── appsettings.json
 ```
 
+## .NET 9 Features
+
+### Constructor Injection (new)
+```razor
+@code {
+    private readonly IMyService _service;
+
+    public MyComponent(IMyService service)  // Instead of @inject
+    {
+        _service = service;
+    }
+}
+```
+
+### Static SSR Pages in Interactive Apps
+```razor
+@attribute [ExcludeFromInteractiveRouting]
+@page "/privacy"
+
+@* This page stays static SSR even in an interactive app *@
+<h1>Privacy Policy</h1>
+<p>Static content here...</p>
+```
+
+### Optimized Static Assets
+```csharp
+// Program.cs - use instead of UseStaticFiles()
+app.MapStaticAssets();  // Gzip compression, fingerprinting, caching
+```
+
+### Render Modes Summary
+| Mode | Use Case |
+|------|----------|
+| Static SSR | Content pages, SEO-critical |
+| InteractiveServer | Real-time updates, SignalR |
+| InteractiveWebAssembly | Offline capability, client processing |
+| InteractiveAuto | Best of both (server first, then WASM) |
+
 ## Remember
 - Use `@rendermode InteractiveServer` for interactive components
 - Components must have uppercase first letter
 - Use `StateHasChanged()` to trigger re-render manually
 - `@key` directive helps with list rendering performance
 - Keep components small and focused
+- .NET 9 WASM apps load 25% faster than .NET 8
+- Use `MapStaticAssets()` for optimized static file delivery

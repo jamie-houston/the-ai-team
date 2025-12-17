@@ -12,6 +12,8 @@ Implement Web API controller(s) and DTOs based on the PRD.
 6. Verify `dotnet build` succeeds
 7. Commit: "feat: add [Resource] API endpoints"
 
+**Optional:** For production APIs, add versioning with `Asp.Versioning.Mvc` package (see webapi agent for details).
+
 ## IMPORTANT
 
 After creating endpoints:

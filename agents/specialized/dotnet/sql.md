@@ -67,7 +67,36 @@ var page = await _db.Items
     .ToListAsync();
 ```
 
-### 4. Indexing Recommendations
+### 4. Bulk Operations (EF Core 7+)
+Use `ExecuteUpdateAsync()` and `ExecuteDeleteAsync()` for efficient bulk operations without loading entities:
+```csharp
+// Bulk update - single SQL UPDATE statement
+await _db.Items
+    .Where(i => i.IsExpired)
+    .ExecuteUpdateAsync(s => s
+        .SetProperty(i => i.Status, "Archived")
+        .SetProperty(i => i.UpdatedAt, DateTime.UtcNow));
+
+// Bulk delete - single SQL DELETE statement
+await _db.Items
+    .Where(i => i.IsExpired && i.Status == "Archived")
+    .ExecuteDeleteAsync();
+
+// With transactions for multiple operations
+await using var transaction = await _db.Database.BeginTransactionAsync();
+await _db.Orders.Where(o => o.Status == "Cancelled").ExecuteDeleteAsync();
+await _db.Items.Where(i => i.OrderId == null).ExecuteDeleteAsync();
+await transaction.CommitAsync();
+```
+
+**When to use:**
+- Updating/deleting many records (100+)
+- You don't need entity change tracking or events
+- Performance is critical
+
+**Caveat:** These bypass change tracker, so `SaveChangesAsync()` won't include them and entity events won't fire.
+
+### 5. Indexing Recommendations
 ```csharp
 // In OnModelCreating
 modelBuilder.Entity<Order>()
@@ -82,7 +111,7 @@ modelBuilder.Entity<User>()
     .IsUnique();
 ```
 
-### 5. Common SQL Server Patterns
+### 6. Common SQL Server Patterns
 ```sql
 -- Pagination (SQL Server)
 SELECT * FROM Orders
@@ -111,7 +140,7 @@ WITH CategoryTree AS (
 SELECT * FROM CategoryTree;
 ```
 
-### 6. Debugging Queries
+### 7. Debugging Queries
 ```csharp
 // Log generated SQL
 optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
@@ -121,6 +150,43 @@ var query = _db.Orders.Where(o => o.Total > 100);
 var sql = query.ToQueryString();
 Console.WriteLine(sql);
 ```
+
+### 8. Streaming Large Datasets (Advanced)
+Use `IAsyncEnumerable<T>` to stream results without loading everything into memory:
+```csharp
+// Service - stream from database
+public async IAsyncEnumerable<Item> GetAllItemsAsync()
+{
+    await foreach (var item in _db.Items.AsAsyncEnumerable())
+    {
+        yield return item;
+    }
+}
+
+// With transformation
+public async IAsyncEnumerable<ItemDto> StreamItemsAsync()
+{
+    await foreach (var item in _db.Items.AsNoTracking().AsAsyncEnumerable())
+    {
+        yield return new ItemDto(item.Id, item.Name, item.Price);
+    }
+}
+
+// Controller - stream HTTP response
+[HttpGet("export")]
+public IAsyncEnumerable<ItemDto> ExportItems() => _itemService.StreamItemsAsync();
+```
+
+**When to use:**
+- Large exports (CSV, JSON streams with 10K+ records)
+- Memory-constrained scenarios
+- Real-time data feeds
+- Processing records one at a time
+
+**When NOT to use:**
+- Standard CRUD APIs (just use `ToListAsync()`)
+- Small datasets (<1000 records)
+- When you need the full count upfront
 
 ## Common Interview Questions
 

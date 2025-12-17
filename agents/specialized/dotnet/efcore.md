@@ -52,9 +52,16 @@ modelBuilder.Entity<Order>()
 ```
 
 ### 4. Register in Program.cs
+Use config-based provider switching for dev/prod flexibility:
 ```csharp
+var provider = builder.Configuration.GetValue<string>("DatabaseProvider") ?? "Sqlite";
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    if (provider == "SqlServer")
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    else
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
 ```
 
 ### 5. Create Migration
@@ -77,6 +84,7 @@ git commit -m "Add EF Core models and DbContext for [entities]"
 
 ## Remember
 - Keep models simple — avoid over-engineering relationships
-- SQLite for dev is fine (`Data Source=app.db`)
+- SQLite for dev, SqlServer for prod — switch via `DatabaseProvider` config
 - Use `AsNoTracking()` for read-only queries
+- For bulk updates/deletes, use `ExecuteUpdateAsync()`/`ExecuteDeleteAsync()` (see sql agent)
 - Don't forget to seed test data if needed

@@ -95,17 +95,69 @@ public record CreateEntityRequest(
 ```
 
 ### 4. Error Handling
-Add global exception handler in Program.cs:
+Use the built-in ProblemDetails middleware (ASP.NET Core 8+):
 ```csharp
-app.UseExceptionHandler("/error");
+// Program.cs - Services
+builder.Services.AddProblemDetails();
 
-app.Map("/error", (HttpContext context) =>
+// Program.cs - Middleware (after build, before MapControllers)
+if (app.Environment.IsDevelopment())
 {
-    return Results.Problem();
-});
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler();
+}
+app.UseStatusCodePages();
 ```
 
-### 5. Test with curl/Swagger
+This provides RFC 7807 compliant error responses automatically:
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.5",
+  "title": "Not Found",
+  "status": 404
+}
+```
+
+### 5. API Versioning (Optional)
+For production APIs, add versioning support:
+```bash
+dotnet add package Asp.Versioning.Mvc
+```
+
+```csharp
+// Program.cs
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+}).AddApiExplorer();
+
+// Controller
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
+public class EntitiesController : ControllerBase
+{
+    // v1 endpoints
+}
+
+[ApiVersion("2.0")]
+public class EntitiesV2Controller : ControllerBase
+{
+    // v2 endpoints with breaking changes
+}
+```
+
+**Versioning strategies:**
+- URL path: `/api/v1/items` (most common, explicit)
+- Query string: `/api/items?api-version=1.0`
+- Header: `X-Api-Version: 1.0`
+
+### 6. Test with curl/Swagger
 ```bash
 # Create
 curl -X POST http://localhost:5000/api/entities \
@@ -116,7 +168,7 @@ curl -X POST http://localhost:5000/api/entities \
 curl http://localhost:5000/api/entities
 ```
 
-### 6. Git Commit
+### 7. Git Commit
 ```bash
 git add .
 git commit -m "Add [Entity] API endpoints (CRUD)"
@@ -132,3 +184,4 @@ git commit -m "Add [Entity] API endpoints (CRUD)"
 - Use `async/await` for all DB operations
 - Don't expose entity IDs in URLs if security matters (use GUIDs)
 - Validate input — never trust the client
+- For production APIs, consider adding versioning (section 5)

@@ -9,8 +9,18 @@ Implement entity models and DbContext based on the PRD.
 3. Create DbContext in Data/
    - **Always add**: `using Microsoft.EntityFrameworkCore;` at the top
 4. Configure relationships and constraints in OnModelCreating
-5. Register DbContext in Program.cs
-6. Add connection string to appsettings.json
+5. Register DbContext in Program.cs with provider switching:
+   ```csharp
+   var provider = builder.Configuration.GetValue<string>("DatabaseProvider") ?? "Sqlite";
+   builder.Services.AddDbContext<AppDbContext>(options =>
+   {
+       if (provider == "SqlServer")
+           options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+       else
+           options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+   });
+   ```
+6. Verify appsettings.json has connection string (should exist from scaffold)
 7. Verify `dotnet build` succeeds
 8. Commit: "feat: add [Entity] model and DbContext"
 

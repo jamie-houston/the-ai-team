@@ -124,14 +124,30 @@ list.Should().NotBeEmpty();
 response.StatusCode.Should().Be(HttpStatusCode.OK);
 ```
 
-### 5. Run Tests
+### 5. Mocking Dependencies
+For unit testing services with dependencies, use a mocking library:
+```csharp
+// Using Moq (default)
+var mockRepo = new Mock<IItemRepository>();
+mockRepo.Setup(r => r.GetByIdAsync(1)).ReturnsAsync(new Item { Id = 1, Name = "Test" });
+
+var service = new ItemService(mockRepo.Object);
+var result = await service.GetByIdAsync(1);
+
+result.Should().NotBeNull();
+mockRepo.Verify(r => r.GetByIdAsync(1), Times.Once);
+```
+
+**Alternatives:** NSubstitute, FakeItEasy (if your team prefers different syntax)
+
+### 6. Run Tests
 ```bash
 dotnet test
 dotnet test --filter "ClassName"
 dotnet test --filter "MethodName"
 ```
 
-### 6. Git Commit
+### 7. Git Commit
 ```bash
 git add .
 git commit -m "Add tests for [feature]"

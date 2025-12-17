@@ -89,11 +89,11 @@ foreach (var item in items)
     Console.WriteLine("| {0,-20} | {1,10:C} |", item.Name, item.Amount);
 }
 
-// Progress indicator
+// Progress indicator (async)
 for (int i = 0; i <= 100; i++)
 {
     Console.Write($"\rProcessing: {i}%");
-    Thread.Sleep(50);
+    await Task.Delay(50);
 }
 Console.WriteLine();
 ```

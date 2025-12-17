@@ -24,6 +24,7 @@ dotnet run     # Can hit endpoints?
 - [ ] Logical folder organization
 - [ ] No god classes (>300 lines is a smell)
 - [ ] Methods do one thing
+- [ ] Use `sealed` on classes not designed for inheritance (entities, services, controllers)
 
 **C# Idioms:**
 ```csharp
@@ -31,11 +32,58 @@ dotnet run     # Can hit endpoints?
 if (item is null) return NotFound();
 var items = await _db.Items.ToListAsync();
 public string Name { get; set; } = string.Empty;
+public sealed class ItemService { }    // Seal non-inheritable classes
 
 // Avoid
 if (item == null) return NotFound();  // Use 'is null'
 var items = _db.Items.ToList();       // Use async
 public string Name { get; set; }      // Nullable warning
+public class ItemService { }          // Missing sealed
+```
+
+**Nullable Reference Types (enabled by default in .NET 6+):**
+```csharp
+// Non-nullable - must initialize
+public string Name { get; set; } = string.Empty;
+public List<Item> Items { get; set; } = new();
+
+// Explicitly nullable - use ? suffix
+public string? Description { get; set; }
+public Item? Parent { get; set; }
+
+// Required via constructor - suppress with null!
+public string RequiredField { get; init; } = null!;  // Set by EF/DI
+
+// Null handling patterns
+var name = item?.Name ?? "Unknown";           // Null-coalescing
+if (item is { Name: var n }) { }              // Pattern matching
+ArgumentNullException.ThrowIfNull(item);      // Guard clause (.NET 6+)
+```
+
+**Primary Constructors (C# 12+):**
+```csharp
+// Traditional - verbose
+public class ItemService
+{
+    private readonly AppDbContext _db;
+    public ItemService(AppDbContext db) => _db = db;
+}
+
+// Primary constructor - cleaner
+public sealed class ItemService(AppDbContext db)
+{
+    public async Task<Item?> GetById(int id) => await db.Items.FindAsync(id);
+}
+
+// Works for controllers too
+[ApiController]
+[Route("api/[controller]")]
+public sealed class ItemsController(AppDbContext db) : ControllerBase
+{
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Item>> Get(int id) =>
+        await db.Items.FindAsync(id) is Item item ? Ok(item) : NotFound();
+}
 ```
 
 ### 3. Security

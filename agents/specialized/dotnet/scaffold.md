@@ -56,18 +56,60 @@ public partial class Program { }
 This allows WebApplicationFactory to discover the entry point for integration tests.
 
 ### 3. Add Common Packages
+Use **explicit version 9.0.0** (NuGet may grab 10.x which is incompatible with .NET 9):
 ```bash
-# API project
-dotnet add src/ProjectName.Api package Microsoft.EntityFrameworkCore.SqlServer
-dotnet add src/ProjectName.Api package Microsoft.EntityFrameworkCore.Design
+# API project - both providers for dev/prod flexibility
+dotnet add src/ProjectName.Api package Microsoft.EntityFrameworkCore.Sqlite --version 9.0.0
+dotnet add src/ProjectName.Api package Microsoft.EntityFrameworkCore.SqlServer --version 9.0.0
+dotnet add src/ProjectName.Api package Microsoft.EntityFrameworkCore.Design --version 9.0.0
 
 # Test project
-dotnet add tests/ProjectName.Tests package Moq
+dotnet add tests/ProjectName.Tests package Microsoft.AspNetCore.Mvc.Testing --version 9.0.0
+dotnet add tests/ProjectName.Tests package Microsoft.EntityFrameworkCore.InMemory --version 9.0.0
 dotnet add tests/ProjectName.Tests package FluentAssertions
 ```
 
 ### 4. Configure Basics
-- Set up appsettings.json with connection string placeholder
+- Set up appsettings.json with connection string and provider:
+  ```json
+  {
+    "ConnectionStrings": {
+      "DefaultConnection": "Data Source=app.db"
+    },
+    "DatabaseProvider": "Sqlite"
+  }
+  ```
+- Create `.editorconfig` in solution root for consistent code style:
+  ```ini
+  root = true
+
+  [*.cs]
+  indent_style = space
+  indent_size = 4
+  charset = utf-8
+
+  # Naming conventions
+  dotnet_naming_style.pascal_case.capitalization = pascal_case
+  dotnet_naming_style.camel_case.capitalization = camel_case
+
+  # PascalCase for classes, methods, properties
+  dotnet_naming_rule.types_pascal.symbols = types
+  dotnet_naming_rule.types_pascal.style = pascal_case
+  dotnet_naming_rule.types_pascal.severity = warning
+  dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum, method, property
+
+  # camelCase for locals and parameters
+  dotnet_naming_rule.locals_camel.symbols = locals
+  dotnet_naming_rule.locals_camel.style = camel_case
+  dotnet_naming_rule.locals_camel.severity = warning
+  dotnet_naming_symbols.locals.applicable_kinds = parameter, local
+
+  # Prefer 'is null' over '== null'
+  dotnet_style_prefer_is_null_check_over_reference_equality_method = true:warning
+
+  # Use explicit types for built-in types
+  csharp_style_var_for_built_in_types = false:suggestion
+  ```
 - Add a basic .gitignore for .NET
 - Initialize git repo
 
@@ -86,4 +128,5 @@ git commit -m "Initial scaffold: .NET Web API with EF Core and xUnit"
 ## Remember
 - Keep it minimal — no over-engineering
 - Use latest .NET patterns (minimal API is fine, but controllers are more familiar)
-- SQLite is fine for interview (faster than SQL Server setup)
+- Both SQLite and SqlServer packages are installed for flexibility
+- Default to SQLite for dev (faster setup), switch provider via config for production
