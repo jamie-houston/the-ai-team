@@ -98,7 +98,58 @@ public sealed class ItemsController(AppDbContext db) : ControllerBase
 - [ ] Appropriate status codes (200, 201, 204, 400, 404, 500)
 - [ ] DTOs separate from entities
 
-### 5. Common Issues to Catch
+### 5. Dependency Injection
+- [ ] Services registered in Program.cs with correct lifetime
+- [ ] Business logic in services, not controllers
+- [ ] Interfaces used for testability (`IItemService`, not `ItemService`)
+- [ ] No `new` for dependencies — inject everything
+
+**Service Lifetimes:**
+```csharp
+// Scoped (per-request) — default for most services, DbContext
+builder.Services.AddScoped<IItemService, ItemService>();
+
+// Transient (new instance each time) — lightweight, stateless
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+// Singleton (one instance) — caches, configuration, thread-safe only
+builder.Services.AddSingleton<ICacheService, CacheService>();
+```
+
+**Service Pattern:**
+```csharp
+// Interface for testability
+public interface IItemService
+{
+    Task<Item?> GetByIdAsync(int id);
+    Task<Item> CreateAsync(CreateItemRequest request);
+}
+
+// Implementation
+public sealed class ItemService(AppDbContext db) : IItemService
+{
+    public async Task<Item?> GetByIdAsync(int id) =>
+        await db.Items.FindAsync(id);
+
+    public async Task<Item> CreateAsync(CreateItemRequest request)
+    {
+        var item = new Item { Name = request.Name };
+        db.Items.Add(item);
+        await db.SaveChangesAsync();
+        return item;
+    }
+}
+
+// Controller stays thin
+public sealed class ItemsController(IItemService service) : ControllerBase
+{
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Item>> Get(int id) =>
+        await service.GetByIdAsync(id) is Item item ? Ok(item) : NotFound();
+}
+```
+
+### 6. Common Issues to Catch
 
 **N+1 Queries:**
 ```csharp
@@ -128,14 +179,14 @@ var item = await _db.Items.FirstOrDefaultAsync(i => i.Id == id);
 // But watch for: HttpClient, FileStreams, etc.
 ```
 
-### 6. Quick Cleanup
+### 7. Quick Cleanup
 Before final submit:
 - [ ] Remove commented-out code
 - [ ] Remove Console.WriteLine debugging
 - [ ] Remove unused usings (`dotnet format`)
 - [ ] Ensure consistent formatting
 
-### 7. Interview Talking Points
+### 8. Interview Talking Points
 Be ready to explain:
 - Why you chose this structure
 - Trade-offs you made for time

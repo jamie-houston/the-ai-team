@@ -94,6 +94,53 @@ public record CreateEntityRequest(
 );
 ```
 
+### 3a. Extract Services (When Needed)
+For complex business logic, create a service layer:
+```csharp
+// Services/IEntityService.cs
+public interface IEntityService
+{
+    Task<Entity?> GetByIdAsync(int id);
+    Task<Entity> CreateAsync(CreateEntityRequest request);
+}
+
+// Services/EntityService.cs
+public sealed class EntityService(AppDbContext db) : IEntityService
+{
+    public async Task<Entity?> GetByIdAsync(int id) =>
+        await db.Entities.FindAsync(id);
+
+    public async Task<Entity> CreateAsync(CreateEntityRequest request)
+    {
+        var entity = new Entity { Name = request.Name, CreatedAt = DateTime.UtcNow };
+        db.Entities.Add(entity);
+        await db.SaveChangesAsync();
+        return entity;
+    }
+}
+
+// Register in Program.cs
+builder.Services.AddScoped<IEntityService, EntityService>();
+
+// Controller becomes thin
+public sealed class EntitiesController(IEntityService service) : ControllerBase
+{
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Entity>> Get(int id) =>
+        await service.GetByIdAsync(id) is Entity e ? Ok(e) : NotFound();
+}
+```
+
+**When to use services:**
+- Business logic beyond simple CRUD
+- Logic shared across controllers
+- Complex validation or calculations
+- External API calls
+
+**When DbContext in controller is fine:**
+- Simple CRUD with no business rules
+- Time-constrained demos/interviews
+
 ### 4. Error Handling
 Use the built-in ProblemDetails middleware (ASP.NET Core 8+):
 ```csharp
