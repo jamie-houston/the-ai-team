@@ -11,54 +11,64 @@ Add data import functionality to seed the database from JSON or CSV files.
 
 1. Identify the data file format (JSON or CSV)
 
-2. Create a data seeding service:
+2. **Copy the data file into the project** (e.g., `src/ProjectName.Api/Data/seed-data.json`)
+   - Don't use fragile relative paths like `../../..` to find files outside the project
+
+3. Create a data seeding service in `Data/DataSeeder.cs`:
    ```csharp
-   public class DataSeeder
+   using System.Text.Json;
+   using System.Text.Json.Serialization;
+   using Microsoft.EntityFrameworkCore;  // Don't forget this!
+   using YourProject.Api.Models;
+
+   public static class DataSeeder
    {
-       public static async Task SeedFromJsonAsync<T>(AppDbContext db, string filePath) where T : class
+       public static async Task SeedFromJsonAsync(AppDbContext db, string filePath)
        {
+           // Check if already seeded (including soft-deleted items)
+           if (await db.YourEntity.IgnoreQueryFilters().AnyAsync())
+               return;
+
            var json = await File.ReadAllTextAsync(filePath);
-           var items = JsonSerializer.Deserialize<List<T>>(json);
-           await db.Set<T>().AddRangeAsync(items);
-           await db.SaveChangesAsync();
+           var options = new JsonSerializerOptions
+           {
+               PropertyNameCaseInsensitive = true,
+               Converters = { new JsonStringEnumConverter() }
+           };
+           var items = JsonSerializer.Deserialize<List<YourEntity>>(json, options);
+           // ... add to db
        }
    }
    ```
 
-3. For CSV, add CsvHelper package:
+4. **Handle enum string mapping**: If JSON has strings like "Office Supplies" but enum is `OfficeSupplies`:
+   ```csharp
+   // Create a seed DTO with string Category, then map manually:
+   private static Category ParseCategory(string category)
+   {
+       var normalized = category.Replace(" ", "");
+       return Enum.Parse<Category>(normalized, ignoreCase: true);
+   }
+   ```
+
+5. For CSV, add CsvHelper package:
    ```bash
    dotnet add package CsvHelper
    ```
 
-4. Add seed endpoint or startup seeding in Program.cs
+6. Add startup seeding in Program.cs:
+   ```csharp
+   // In Program.cs after EnsureCreated()
+   var seedPath = Path.Combine(app.Environment.ContentRootPath, "Data", "seed-data.json");
+   if (File.Exists(seedPath))
+   {
+       await DataSeeder.SeedFromJsonAsync(db, seedPath);
+   }
+   ```
 
-5. Verify data loads correctly
+7. Verify data loads correctly
 
-6. Commit: "feat: add data seeding from [format]"
-
-## Common Patterns
-
-### JSON Loading
-```csharp
-var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-var data = JsonSerializer.Deserialize<List<MyModel>>(json, options);
-```
-
-### CSV Loading
-```csharp
-using var reader = new StreamReader(filePath);
-using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-var records = csv.GetRecords<MyModel>().ToList();
-```
-
-### Startup Seeding
-```csharp
-// In Program.cs after EnsureCreated()
-if (!db.Items.Any())
-{
-    await DataSeeder.SeedFromJsonAsync<Item>(db, "Data/seed.json");
-}
-```
+8. Commit: "feat: add data seeding from [format]"
 
 ## IMPORTANT
 
