@@ -18,7 +18,7 @@
 
 Clone the repository:
 ```bash
-git clone https://github.com/vijaythecoder/awesome-claude-agents.git
+git clone https://github.com/jamie-houston/awesome-claude-agents.git
 cd awesome-claude-agents
 ```
 
@@ -27,14 +27,14 @@ cd awesome-claude-agents
 **macOS/Linux:**
 ```bash
 # Run the linking script
-./link_agents.sh
+./link.sh
 ```
 
-This will symlink all agent directories to `~/.claude/agents/` making them globally available. The agents will auto-update when you pull new changes from the repository.
+This will symlink all agent directories to `~/.claude/agents/` and command files to `~/.claude/commands/` making them globally available. The agents and commands will auto-update when you pull new changes from the repository.
 
 To unlink later:
 ```bash
-./unlink_agents.sh
+./unlink.sh
 ```
 
 **Windows:**
@@ -42,17 +42,18 @@ To unlink later:
 
 #### Option B: Copy (Static - no auto-updates)
 ```bash
-# Create agents directory if it doesn't exist
-mkdir -p ~/.claude/agents
+# Create directories if they don't exist
+mkdir -p ~/.claude/agents ~/.claude/commands
 
-# Copy all agents
+# Copy all agents and commands
 cp -r agents/* ~/.claude/agents/
+cp -r commands/* ~/.claude/commands/
 ```
 
 ### 2. Verify Installation
 ```bash
 claude /agents
-# Should show all 45 agents across core, orchestrators, specialized, and universal categories.
+# Should show all 59 agents across core, orchestrators, specialized, and universal categories.
 ```
 
 ### 3. Initialize Your Project
@@ -88,7 +89,17 @@ The @agent-team-configurator automatically sets up your perfect AI development t
 - **[Project Analyst](agents/orchestrators/project-analyst.md)** - Technology stack detection specialist who enables intelligent agent routing
 - **[Team Configurator](agents/orchestrators/team-configurator.md)** - AI team setup expert who detects your stack and configures optimal agent mappings
 
-### 💼 Framework Specialists (22 agents)
+### 💼 Framework Specialists (32 agents)
+- **Python (9 agents)**
+  - **[Python Expert](agents/specialized/python/python-expert.md)** - Modern Python 3.12+ development, APIs, and project architecture
+  - **[Django Expert](agents/specialized/python/django-expert.md)** - Comprehensive Django 5.0+ web development and ecosystem
+  - **[FastAPI Expert](agents/specialized/python/fastapi-expert.md)** - High-performance async APIs with FastAPI and Pydantic V2
+  - **[ML/Data Expert](agents/specialized/python/ml-data-expert.md)** - Machine learning, data science, and AI with modern Python stack
+  - **[DevOps/CI-CD Expert](agents/specialized/python/devops-cicd-expert.md)** - Python DevOps, deployment automation, and infrastructure
+  - **[Performance Expert](agents/specialized/python/performance-expert.md)** - Python optimization, profiling, and concurrent programming
+  - **[Testing Expert](agents/specialized/python/testing-expert.md)** - Comprehensive testing strategies and test automation
+  - **[Security Expert](agents/specialized/python/security-expert.md)** - Python security, cryptography, and vulnerability assessment
+  - **[Web Scraping Expert](agents/specialized/python/web-scraping-expert.md)** - Data extraction, automation, and async web crawling
 - **Laravel (2 agents)**
   - **[Backend Expert](agents/specialized/laravel/laravel-backend-expert.md)** - Comprehensive Laravel development with MVC, services, and Eloquent patterns
   - **[Eloquent Expert](agents/specialized/laravel/laravel-eloquent-expert.md)** - Advanced ORM optimization, complex queries, and database performance
@@ -107,14 +118,29 @@ The @agent-team-configurator automatically sets up your perfect AI development t
   - **[Component Architect](agents/specialized/vue/vue-component-architect.md)** - Vue 3 Composition API and component patterns
   - **[Nuxt Expert](agents/specialized/vue/vue-nuxt-expert.md)** - SSR, SSG, and full-stack Nuxt applications
   - **[State Manager](agents/specialized/vue/vue-state-manager.md)** - Pinia and Vuex state architecture
+- **.NET (9 agents)**
+  - **[Blazor Expert](agents/specialized/dotnet/blazor.md)** - Blazor web apps with Server/WASM render modes
+  - **[Console Expert](agents/specialized/dotnet/console.md)** - Console application scaffolding and CLI tools
+  - **[Debug Expert](agents/specialized/dotnet/debug.md)** - Systematic debugging for .NET applications
+  - **[EF Core Expert](agents/specialized/dotnet/efcore.md)** - Entity Framework Core data layer and migrations
+  - **[Review Expert](agents/specialized/dotnet/review.md)** - .NET-specific code review and best practices
+  - **[Scaffold Expert](agents/specialized/dotnet/scaffold.md)** - .NET project scaffolding and structure
+  - **[SQL Expert](agents/specialized/dotnet/sql.md)** - LINQ queries and SQL optimization
+  - **[Testing Expert](agents/specialized/dotnet/testing.md)** - xUnit testing and integration tests
+  - **[Web API Expert](agents/specialized/dotnet/webapi.md)** - ASP.NET Core Web API development
+- **Android/Kotlin (1 agent)**
+  - **[Kotlin Expert](agents/specialized/android/kotlin-expert.md)** - Modern Kotlin development, coroutines, and Android patterns
 
-### 🌐 Universal Experts (4 agents)
+### 🌐 Universal Experts (7 agents)
 - **[Backend Developer](agents/universal/backend-developer.md)** - Polyglot backend development across multiple languages and frameworks
 - **[Frontend Developer](agents/universal/frontend-developer.md)** - Modern web technologies and responsive design for any framework
 - **[API Architect](agents/universal/api-architect.md)** - RESTful design, GraphQL, and framework-agnostic API architecture
 - **[Tailwind Frontend Expert](agents/universal/tailwind-css-expert.md)** - Tailwind CSS styling, utility-first development, and responsive components
+- **[PRD Analyst](agents/universal/analyze-prd.md)** - Requirements analysis and structured PRD generation
+- **[Git Helper](agents/universal/git.md)** - Git workflow expert for clean commit history and best practices
+- **[Orchestrator](agents/universal/orchestrate.md)** - Interview/project workflow orchestration and timeline management
 
-### 🔧 Core Team (16 agents)
+### 🔧 Core Team (17 agents)
 - **[Analytics Specialist](agents/core/analytics-specialist.md)** - Product analytics, user behavior tracking, and data-driven insights
 - **[Business Analyst](agents/core/business-analyst.md)** - PRD analysis, requirements refinement, and user story creation
 - **[Code Archaeologist](agents/core/code-archaeologist.md)** - Explores, documents, and analyzes unfamiliar or legacy codebases
@@ -127,14 +153,38 @@ The @agent-team-configurator automatically sets up your perfect AI development t
 - **[Monitoring Specialist](agents/core/monitoring-specialist.md)** - Observability, alerting, and production monitoring setup
 - **[Performance Optimizer](agents/core/performance-optimizer.md)** - Bottleneck identification and scalable system optimization
 - **[QA Coordinator](agents/core/qa-coordinator.md)** - Test strategy, quality gates, and comprehensive QA orchestration
+- **[Refactoring Expert](agents/core/refactoring-expert.md)** - Complex refactoring, technical debt reduction, and architectural improvements
 - **[Release Manager](agents/core/release-manager.md)** - Release planning, deployment coordination, and rollback procedures
 - **[Security Auditor](agents/core/security-auditor.md)** - OWASP Top 10, vulnerability scanning, and compliance verification
 - **[Sprint Planner](agents/core/sprint-planner.md)** - Agile planning, story estimation, and velocity tracking
 - **[UX/UI Designer](agents/core/ux-ui-designer.md)** - User flows, wireframes, design systems, and component specifications
 
-**Total: 45 specialized agents** working together to build your projects!
+**Total: 59 specialized agents** working together to build your projects!
 
 [Browse all agents →](agents/)
+
+### ⚡ Slash Commands (14 commands)
+
+Quick-access commands for common workflows. Use these with `/command-name` in Claude Code:
+
+| Command | Description |
+|---------|-------------|
+| `/analyze-prd` | Convert requirements into a structured PRD |
+| `/scaffold` | Create .NET Web API project structure |
+| `/scaffold-blazor` | Create Blazor web application structure |
+| `/scaffold-console` | Create .NET console application structure |
+| `/efcore` | Implement EF Core data layer and models |
+| `/webapi` | Create Web API controllers and endpoints |
+| `/test` | Add integration tests for API endpoints |
+| `/debug` | Systematic debugging for .NET issues |
+| `/review` | Quick code review before submission |
+| `/git` | Git workflow and commit assistance |
+| `/sql` | SQL/LINQ query help and optimization |
+| `/orchestrate` | Start the project workflow orchestration |
+| `/add-blazor-ui` | Add Blazor UI to existing Web API |
+| `/load-data` | Add data import/seeding functionality |
+
+[Browse all commands →](commands/)
 
 
 ## 🔥 Why Teams Beat Solo AI
@@ -159,9 +209,9 @@ The @agent-team-configurator automatically sets up your perfect AI development t
 ## 💬 Join The Community
 
 - ⭐ **Star this repo** to show support
-- 🐛 [Report issues](https://github.com/vijaythecoder/awesome-claude-agents/issues)
-- 💡 [Share ideas](https://github.com/vijaythecoder/awesome-claude-agents/discussions)
-- 🎉 [Success stories](https://github.com/vijaythecoder/awesome-claude-agents/discussions/categories/show-and-tell)
+- 🐛 [Report issues](https://github.com/jamie-houston/awesome-claude-agents/issues)
+- 💡 [Share ideas](https://github.com/jamie-houston/awesome-claude-agents/discussions)
+- 🎉 [Success stories](https://github.com/jamie-houston/awesome-claude-agents/discussions/categories/show-and-tell)
 
 ## 📄 License
 
@@ -178,7 +228,7 @@ MIT License - Use freely in your projects!
 </p>
 
 <p align="center">
-  <a href="https://github.com/vijaythecoder/awesome-claude-agents">GitHub</a> •
+  <a href="https://github.com/jamie-houston/awesome-claude-agents">GitHub</a> •
   <a href="docs/creating-agents.md">Documentation</a> •
-  <a href="https://github.com/vijaythecoder/awesome-claude-agents/discussions">Community</a>
+  <a href="https://github.com/jamie-houston/awesome-claude-agents/discussions">Community</a>
 </p>

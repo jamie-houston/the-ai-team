@@ -164,7 +164,7 @@ System prompt content...
 ## Development Guidelines
 
 1. **Creating New Agents**:
-   - Use templates/agent-template.md as starting point
+   - Use docs/creating-agents.md as guide and template
    - Focus on single domain expertise
    - Include 2-3 XML examples
    - Define structured return format
@@ -182,10 +182,10 @@ System prompt content...
 
 ## Important Files and Patterns
 
-- `docs/orchestration-patterns.md`: Detailed three-phase workflow documentation
+- `docs/workflows/README.md`: Complete 7-phase SDLC workflow documentation
+- `docs/workflows/example-walkthrough.md`: Detailed real-world usage examples
 - `docs/creating-agents.md`: Guide for creating new agents
 - `docs/best-practices.md`: Agent development best practices
-- `examples/`: Real-world usage examples
 - All agents support human-in-the-loop through the tech-lead's approval gate
 
 ## Complete Orchestration Example
