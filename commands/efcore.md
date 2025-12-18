@@ -9,7 +9,17 @@ Implement entity models and DbContext based on the PRD.
 3. Create DbContext in Data/
    - **Always add**: `using Microsoft.EntityFrameworkCore;` at the top
 4. Configure relationships and constraints in OnModelCreating
-5. Register DbContext in Program.cs with provider switching:
+   - **Avoid** `HasDefaultValueSql("CURRENT_TIMESTAMP")` - InMemory database doesn't support SQL functions
+   - Set defaults in entity constructors or application code instead
+5. If adding seed data, wrap it for test compatibility:
+   ```csharp
+   // In OnModelCreating, after entity configuration:
+   if (Environment.GetEnvironmentVariable("SKIP_DB_SEED") != "true")
+   {
+       SeedData(modelBuilder);
+   }
+   ```
+6. Register DbContext in Program.cs with provider switching:
    ```csharp
    var provider = builder.Configuration.GetValue<string>("DatabaseProvider") ?? "Sqlite";
    builder.Services.AddDbContext<AppDbContext>(options =>
@@ -20,9 +30,9 @@ Implement entity models and DbContext based on the PRD.
            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
    });
    ```
-6. Verify appsettings.json has connection string (should exist from scaffold)
-7. Verify `dotnet build` succeeds
-8. Commit: "feat: add [Entity] model and DbContext"
+7. Verify appsettings.json has connection string (should exist from scaffold)
+8. Verify `dotnet build` succeeds
+9. Commit: "feat: add [Entity] model and DbContext"
 
 ## Common Using Statements
 

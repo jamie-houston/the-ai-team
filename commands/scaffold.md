@@ -24,6 +24,17 @@ Create the .NET solution structure based on the PRD.
    dotnet add package Microsoft.AspNetCore.Mvc.Testing --version 9.0.0
    dotnet add package Microsoft.EntityFrameworkCore.InMemory --version 9.0.0
    ```
+
+   **For JWT authentication** (if needed later):
+   ```bash
+   dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer --version 9.0.0
+   dotnet add package BCrypt.Net-Next  # For password hashing
+   ```
+
+   **For Swagger** (avoid 10.x namespace issues):
+   ```bash
+   dotnet add package Swashbuckle.AspNetCore --version 6.5.0
+   ```
 5. Wire up project references
 6. Configure appsettings.json with connection string and provider setting:
    ```json

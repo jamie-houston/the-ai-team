@@ -39,6 +39,16 @@ Ordered implementation tasks, sized for ~15-20 min each:
 ### 6. Clarifying Questions
 List anything ambiguous that should be confirmed before coding.
 
+**Tech Stack**: If requirements don't specify a technology stack, ask before creating the PRD. Present these options:
+- **.NET Core** - ASP.NET Core Web API + EF Core + Identity
+- **Python/FastAPI** - FastAPI + SQLAlchemy + SQLite
+- **Node/Express** - Express.js + Prisma/TypeORM
+- **Django** - Django REST Framework + Django ORM
+- **Ruby on Rails** - Rails API + ActiveRecord
+- **Laravel** - Laravel + Eloquent ORM
+
+Include the chosen tech stack in the Project Overview section.
+
 ### 7. Out of Scope
 Explicitly note what we're NOT building (helps manage time).
 
