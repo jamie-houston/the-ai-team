@@ -1,12 +1,38 @@
-Quick code review before submission.
+# Full Project Review
 
-Use the Code Review agent defined in `.claude/agents/specialized/dotnet/review.md` to:
-1. Verify build and tests pass
-2. Check code quality and naming
-3. Identify security issues
-4. Find common mistakes (N+1, missing async)
-5. Suggest quick fixes
+Comprehensive review covering both code quality AND requirements compliance.
 
-Focus area: $ARGUMENTS
+## This command runs TWO agents:
+
+### 1. Requirements Verifier (`.claude/agents/core/requirements-verifier.md`)
+- Reads PRD.md and extracts all user stories/acceptance criteria
+- Scans codebase to verify each requirement is implemented
+- Identifies gaps, partial implementations, and scope creep
+- Generates a compliance report
+
+### 2. Code Review (`.claude/agents/specialized/dotnet/review.md`)
+- Verifies build and tests pass
+- Checks code quality and naming conventions
+- Identifies security issues
+- Finds common mistakes (N+1, missing async, thread safety)
+- Suggests fixes
+
+## Output
+
+A combined report with:
+1. **Requirements Compliance** - What's implemented, what's missing
+2. **Code Quality** - Issues found and suggested fixes
+3. **Action Items** - Prioritized list of things to address
+
+## Focus (optional)
+
+$ARGUMENTS
 
 If no focus specified, review the entire project.
+
+## When to Use
+
+- Before submitting a PR
+- Before a demo or presentation
+- After completing a feature to ensure nothing was missed
+- As a final quality gate before deployment
