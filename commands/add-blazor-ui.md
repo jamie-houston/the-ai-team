@@ -1,68 +1,25 @@
 # Add Blazor UI to Existing API
 
-Add a simple Blazor frontend to an existing Web API project.
+Add an interactive Blazor frontend to an existing Web API project.
+
+Use the Blazor agent defined in `.claude/agents/specialized/dotnet/blazor.md` to:
+
+1. Add Blazor services and middleware to Program.cs
+2. Create the Components folder structure (App.razor, Routes.razor, Layout)
+3. Build CRUD pages for the main entities in the PRD
+4. Wire up pages to call the existing API endpoints
+5. Verify build succeeds and UI renders
+6. Commit the changes
+
+Focus area: $ARGUMENTS
+
+If no focus specified, create pages for all main entities.
 
 ## When to Use
-- You finished the API early and have time remaining
-- Interviewer asks for a UI
+- You finished the API and want a rich, interactive UI
+- Real-time updates or SPA-like experience needed
 - Want to demonstrate full-stack C# skills
-
-## Your Task
-
-1. Add Blazor services to Program.cs:
-   ```csharp
-   builder.Services.AddRazorComponents()
-       .AddInteractiveServerComponents();
-   ```
-
-2. Add Blazor middleware (after UseAuthorization, before MapControllers):
-   ```csharp
-   app.MapRazorComponents<App>()
-       .AddInteractiveServerRenderMode();
-   ```
-
-3. Create Components folder structure:
-   ```
-   Components/
-   ├── App.razor              # Root component
-   ├── Routes.razor           # Router
-   ├── Layout/
-   │   └── MainLayout.razor   # Layout wrapper
-   └── Pages/
-       └── Home.razor         # Main page
-   ```
-
-4. Create a simple CRUD page that calls the API endpoints
-
-5. Verify `dotnet build` succeeds
-
-6. Verify the UI renders at the root URL
-
-7. Commit: "feat: add Blazor UI for [Resource]"
-
-## IMPORTANT
-
-After adding UI:
-1. Show the components created
-2. Confirm the UI works
-3. **STOP and wait for user review**
-
-## Minimal App.razor
-```razor
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <base href="/" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <HeadOutlet />
-</head>
-<body>
-    <Routes />
-    <script src="_framework/blazor.web.js"></script>
-</body>
-</html>
-```
 
 ## Note
 This is a "nice to have" — only do this if API is complete and tested.
+Choose `/add-razor-ui` instead if you want simpler server-rendered pages.
