@@ -1,3 +1,8 @@
+---
+description: Start 2-hour interview workflow with time management
+argument-hint: [phase-or-question]
+---
+
 Start the interview orchestration workflow.
 
 Use the Orchestrator agent defined in `.claude/agents/universal/orchestrate.md` to:

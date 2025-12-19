@@ -1,3 +1,8 @@
+---
+description: Verify implementation meets all PRD requirements
+argument-hint: [requirement-focus]
+---
+
 # Verify PRD Requirements
 
 Validate that the implementation fulfills all requirements from the PRD.

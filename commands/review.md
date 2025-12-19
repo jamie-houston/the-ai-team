@@ -1,3 +1,8 @@
+---
+description: Full code review + requirements compliance check
+argument-hint: [focus-area]
+---
+
 # Full Project Review
 
 Comprehensive review covering both code quality AND requirements compliance.

@@ -1,3 +1,8 @@
+---
+description: Generate project README with setup instructions
+argument-hint: [section-focus]
+---
+
 # Generate README
 
 Create comprehensive project documentation based on the codebase.

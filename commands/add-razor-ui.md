@@ -1,3 +1,8 @@
+---
+description: Add Razor Pages UI to existing Web API project
+argument-hint: [entity-focus]
+---
+
 # Add Razor Pages UI to Existing API
 
 Add a server-rendered Razor Pages frontend to an existing Web API project.

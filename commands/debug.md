@@ -1,3 +1,8 @@
+---
+description: Diagnose and fix .NET build/runtime errors
+argument-hint: [problem-description]
+---
+
 Help debug an issue.
 
 Use the Debug agent defined in `.claude/agents/specialized/dotnet/debug.md` to:

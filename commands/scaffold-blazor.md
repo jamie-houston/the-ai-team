@@ -1,3 +1,8 @@
+---
+description: Create Blazor Web App solution with interactive components
+argument-hint: [project-name]
+---
+
 # Scaffold Blazor Web App
 
 Create a Blazor web application structure based on the PRD.

@@ -1,3 +1,8 @@
+---
+description: Help with complex SQL/LINQ queries and database operations
+argument-hint: [query-or-task]
+---
+
 Help with SQL queries or database operations.
 
 Use the SQL agent defined in `.claude/agents/specialized/dotnet/sql.md` to:

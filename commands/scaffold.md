@@ -1,3 +1,8 @@
+---
+description: Create .NET Web API solution with EF Core and xUnit
+argument-hint: [project-name]
+---
+
 # Scaffold Project
 
 Create the .NET solution structure based on the PRD.

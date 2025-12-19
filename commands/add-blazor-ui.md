@@ -1,3 +1,8 @@
+---
+description: Add interactive Blazor UI to existing Web API project
+argument-hint: [entity-focus]
+---
+
 # Add Blazor UI to Existing API
 
 Add an interactive Blazor frontend to an existing Web API project.

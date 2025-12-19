@@ -1,3 +1,8 @@
+---
+description: Create .NET console application with xUnit tests
+argument-hint: [project-name]
+---
+
 # Scaffold Console App
 
 Create a .NET console application structure based on the PRD.

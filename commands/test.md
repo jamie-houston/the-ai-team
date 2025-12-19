@@ -1,3 +1,8 @@
+---
+description: Create integration tests for API endpoints
+argument-hint: [controller-or-feature]
+---
+
 # Add Tests
 
 Create integration tests for the API endpoints.

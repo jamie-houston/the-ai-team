@@ -1,3 +1,8 @@
+---
+description: Convert raw requirements into a structured PRD document
+argument-hint: [requirements-text]
+---
+
 # Analyze Requirements → PRD
 
 Analyze the provided requirements and create a structured PRD.

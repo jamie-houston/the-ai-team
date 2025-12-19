@@ -1,3 +1,8 @@
+---
+description: Create Web API controllers and DTOs from PRD
+argument-hint: [entity-or-feature]
+---
+
 # Create API Endpoints
 
 Implement Web API controller(s) and DTOs based on the PRD.

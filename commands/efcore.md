@@ -1,3 +1,8 @@
+---
+description: Create EF Core models, DbContext, and migrations
+argument-hint: [entity-focus]
+---
+
 # Create Data Layer (EF Core)
 
 Implement entity models and DbContext based on the PRD.
