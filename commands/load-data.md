@@ -74,9 +74,12 @@ Add data import functionality to seed the database from JSON or CSV files.
 
 8. Commit: "feat: add data seeding from [format]"
 
-## IMPORTANT
+## IMPORTANT - Workflow
 
 After adding data loading:
 1. Show what was loaded (count, sample)
-2. Verify API returns the data
+2. Verify the app starts and data is accessible
 3. **STOP and wait for user review**
+4. Tell user: "Data seeding complete. When ready, run `/webapi` to create API endpoints"
+
+Do NOT proceed to API endpoints automatically.

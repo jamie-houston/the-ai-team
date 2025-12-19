@@ -336,6 +336,17 @@ app.MapStaticAssets();  // Gzip compression, fingerprinting, caching
 | InteractiveWebAssembly | Offline capability, client processing |
 | InteractiveAuto | Best of both (server first, then WASM) |
 
+## IMPORTANT - Workflow
+
+After creating Blazor UI:
+1. List the components/pages created
+2. Show the routes added
+3. Confirm build succeeded and UI renders correctly
+4. **STOP and wait for user review**
+5. Tell user: "Blazor UI complete. When ready, run `/test` to add tests"
+
+Do NOT proceed to testing automatically.
+
 ## Remember
 - Use `@rendermode InteractiveServer` for interactive components
 - Components must have uppercase first letter

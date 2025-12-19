@@ -454,6 +454,17 @@ public class CreateModel : PageModel
 </select>
 ```
 
+## IMPORTANT - Workflow
+
+After creating Razor Pages UI:
+1. List the pages created (Index, Create, Edit, Delete, Details)
+2. Show the routes added
+3. Confirm build succeeded and pages render correctly
+4. **STOP and wait for user review**
+5. Tell user: "Razor Pages UI complete. When ready, run `/test` to add tests"
+
+Do NOT proceed to testing automatically.
+
 ## Remember
 - One page = one `.cshtml` + one `.cshtml.cs` (PageModel)
 - Use `[BindProperty]` for form data

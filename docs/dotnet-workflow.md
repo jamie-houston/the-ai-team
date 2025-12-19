@@ -14,6 +14,9 @@ Build complete .NET Web APIs from requirements to production-ready code using sp
 # 3. Create data layer
 /efcore
 
+# 3b. Seed sample data (if project includes JSON/CSV data files)
+/load-data
+
 # 4. Build API endpoints
 /webapi
 
@@ -102,6 +105,31 @@ Creates:
 - Config-based provider switching (SQLite dev, SqlServer prod)
 - Test-compatible seed data with environment check
 - Avoids `HasDefaultValueSql()` for InMemory compatibility
+
+---
+
+### Phase 3b: Seed Sample Data (If Applicable)
+
+**Command:** `/load-data`
+
+Use this when your project includes sample data files (JSON, CSV) that need to be imported into the database.
+
+```bash
+/load-data              # Detects and imports data files
+```
+
+**What it does:**
+- Copies data file into `Data/` folder (avoids fragile relative paths)
+- Creates idempotent `DataSeeder.cs` (skips if data exists)
+- Handles JSON/CSV parsing with enum mapping
+- Adds startup seeding in Program.cs
+
+**When to use:**
+- PRD references a sample dataset file
+- Requirements include demo/test data
+- Need to import existing data from another system
+
+**Skip this step** if your project doesn't include data files.
 
 ---
 
@@ -279,6 +307,9 @@ Users can browse, search, add to cart, checkout. Need user accounts."
 # Create entities: Book, User, Cart, Order, OrderItem
 /efcore
 
+# If you have sample data files (e.g., books.json, catalog.csv):
+# /load-data
+
 # Create all endpoints
 /webapi
 
@@ -327,6 +358,11 @@ Users can browse, search, add to cart, checkout. Need user accounts."
          ▼
 ┌─────────────────┐
 │   Data Layer    │
+└────────┬────────┘
+         │ /load-data (if sample data files exist)
+         ▼
+┌─────────────────┐
+│   Seed Data     │ (optional)
 └────────┬────────┘
          │ /webapi
          ▼

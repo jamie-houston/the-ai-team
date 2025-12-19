@@ -269,8 +269,17 @@ After creating endpoints:
 1. List the endpoints created (method, path, description)
 2. Show the DTOs created
 3. Confirm build succeeded
-4. **STOP and wait for user review**
-5. Tell user: "API endpoints complete. When ready, run `/test` to add tests"
+4. **Check PRD.md for next step context**
+5. **STOP and wait for user review**
+6. Suggest next step based on PRD:
+   - If PRD mentions "Blazor", "interactive", "SPA", "real-time":
+     → "API endpoints complete. Run `/add-blazor-ui` for frontend, or `/test` to add tests"
+   - If PRD mentions "Razor", "pages", "server-rendered", "MVC":
+     → "API endpoints complete. Run `/add-razor-ui` for frontend, or `/test` to add tests"
+   - If PRD mentions "UI", "frontend", "admin dashboard" (but doesn't specify type):
+     → "API endpoints complete. Run `/add-blazor-ui` or `/add-razor-ui` for frontend, or `/test` to add tests"
+   - Otherwise:
+     → "API endpoints complete. When ready, run `/test` to add tests"
 
 Do NOT proceed to testing automatically.
 

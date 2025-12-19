@@ -117,8 +117,13 @@ After creating data layer:
 1. List the entities and properties created
 2. Show the DbContext configuration
 3. Confirm build succeeded
-4. **STOP and wait for user review**
-5. Tell user: "Data layer complete. When ready, run `/webapi` to create endpoints"
+4. **Check PRD.md for next step context**
+5. **STOP and wait for user review**
+6. Suggest next step based on PRD:
+   - If PRD mentions sample data files (JSON, CSV, "seed data", "import"):
+     → "Data layer complete. Run `/load-data` to import sample data, or `/webapi` to create endpoints"
+   - Otherwise:
+     → "Data layer complete. When ready, run `/webapi` to create endpoints"
 
 Do NOT proceed to API endpoints automatically.
 
