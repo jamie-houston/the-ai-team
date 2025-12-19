@@ -64,7 +64,7 @@ Write the PRD to a file called `PRD.md` in the project root.
 
 After creating the PRD:
 1. Show a brief summary of what was created
-2. List any clarifying questions that need answers before proceeding
+2. Ask any clarifying questions that need answers before proceeding
 3. **STOP and wait for user review**
 4. Tell user: "Review the PRD. When ready, run `/scaffold [ProjectName]`"
 
