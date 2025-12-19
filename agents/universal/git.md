@@ -32,7 +32,7 @@ git commit -m "fix: handle null reference in GetById"
 git commit -m "refactor: extract order validation to service"
 ```
 
-### 3. Interview Commit Cadence
+### 3. Commit Cadence
 Aim for commits at these checkpoints:
 1. `chore: initial project scaffold`
 2. `feat: add domain models and DbContext`
@@ -75,14 +75,3 @@ git log --oneline --graph --all
 # Show commit frequency
 git log --format="%h %s" --since="2 hours ago"
 ```
-
-## Interview Tips
-- Commit after each feature, not at the end
-- Messages should explain *what* was done
-- If you mess up, `git reset --soft HEAD~1` and recommit
-- Don't spend time on perfect messages — good enough is fine
-
-## Remember
-- Frequent commits show progress and professionalism
-- Clean history is better than perfect history
-- Always check `git status` before committing

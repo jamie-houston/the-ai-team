@@ -123,16 +123,3 @@ dotnet build
 5. **Test** — Change one thing, verify
 6. **Fix** — Apply the solution
 7. **Verify** — Confirm it's actually fixed
-
-## Interview Context
-- Don't panic — bugs happen
-- Verbalize your debugging process
-- "Let me check the logs..."
-- "I think the issue is... let me verify..."
-- Ask Claude for help: "I'm getting X error when Y, what could cause this?"
-
-## Remember
-- Build first, then run
-- Check the *actual* error message, not just "it doesn't work"
-- When stuck for >5 min, ask for help
-- Commit working code before trying risky changes

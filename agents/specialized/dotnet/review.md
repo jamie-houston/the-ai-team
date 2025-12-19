@@ -186,13 +186,6 @@ Before final submit:
 - [ ] Remove unused usings (`dotnet format`)
 - [ ] Ensure consistent formatting
 
-### 8. Interview Talking Points
-Be ready to explain:
-- Why you chose this structure
-- Trade-offs you made for time
-- What you'd improve with more time
-- How you'd scale this
-
 ## Review Output Format
 ```
 ## Code Review Summary

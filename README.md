@@ -138,7 +138,7 @@ The @agent-team-configurator automatically sets up your perfect AI development t
 - **[Tailwind Frontend Expert](agents/universal/tailwind-css-expert.md)** - Tailwind CSS styling, utility-first development, and responsive components
 - **[PRD Analyst](agents/universal/analyze-prd.md)** - Requirements analysis and structured PRD generation
 - **[Git Helper](agents/universal/git.md)** - Git workflow expert for clean commit history and best practices
-- **[Orchestrator](agents/universal/orchestrate.md)** - Interview/project workflow orchestration and timeline management
+- **[Orchestrator](agents/universal/orchestrate.md)** - Project workflow orchestration and timeline management
 
 ### 🔧 Core Team (17 agents)
 - **[Analytics Specialist](agents/core/analytics-specialist.md)** - Product analytics, user behavior tracking, and data-driven insights

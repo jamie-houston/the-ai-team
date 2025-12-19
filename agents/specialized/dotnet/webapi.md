@@ -139,7 +139,7 @@ public sealed class EntitiesController(IEntityService service) : ControllerBase
 
 **When DbContext in controller is fine:**
 - Simple CRUD with no business rules
-- Time-constrained demos/interviews
+- Time-constrained demos/interviews/POCs
 
 ### 4. Error Handling
 Use the built-in ProblemDetails middleware (ASP.NET Core 8+):

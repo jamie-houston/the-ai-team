@@ -153,7 +153,7 @@ git add .
 git commit -m "Add tests for [feature]"
 ```
 
-## Test Coverage Priorities (for 2-hour interview)
+## Test Coverage Priorities 
 1. **Happy path** — main use case works
 2. **Not found** — 404 for missing resources
 3. **Validation** — 400 for bad input
@@ -163,4 +163,4 @@ git commit -m "Add tests for [feature]"
 - Tests should be fast — use in-memory DB
 - One assertion per test (ideally)
 - Test names describe behavior: `Create_ValidEntity_ReturnsCreated`
-- Don't test framework code (EF, ASP.NET) — test YOUR logic
+- Don't test framework code (EF, ASP.NET) — test logic
