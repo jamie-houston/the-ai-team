@@ -33,7 +33,12 @@ public class Entity
 - Add `CreatedAt`/`UpdatedAt` if audit trail needed
 
 ### 2. Create DbContext
+**Always add**: `using Microsoft.EntityFrameworkCore;` at the top of DbContext and data files.
+
 ```csharp
+using Microsoft.EntityFrameworkCore;
+using YourProject.Api.Models;
+
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
@@ -54,6 +59,25 @@ modelBuilder.Entity<Order>()
     .HasMany(o => o.Items)
     .WithOne(i => i.Order)
     .HasForeignKey(i => i.OrderId);
+```
+
+**Important constraints:**
+- **Avoid** `HasDefaultValueSql("CURRENT_TIMESTAMP")` - InMemory database doesn't support SQL functions
+- Set defaults in entity constructors or application code instead
+
+### 3a. Seed Data (Test Compatible)
+If adding seed data, wrap it for test compatibility:
+```csharp
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    // Entity configurations...
+
+    // Skip seeding during tests
+    if (Environment.GetEnvironmentVariable("SKIP_DB_SEED") != "true")
+    {
+        SeedData(modelBuilder);
+    }
+}
 ```
 
 ### 4. Register in Program.cs
@@ -87,9 +111,20 @@ git commit -m "Add EF Core models and DbContext for [entities]"
 - Migration created
 - Database updated
 
+## IMPORTANT - Workflow
+
+After creating data layer:
+1. List the entities and properties created
+2. Show the DbContext configuration
+3. Confirm build succeeded
+4. **STOP and wait for user review**
+5. Tell user: "Data layer complete. When ready, run `/webapi` to create endpoints"
+
+Do NOT proceed to API endpoints automatically.
+
 ## Remember
 - Keep models simple — avoid over-engineering relationships
 - SQLite for dev, SqlServer for prod — switch via `DatabaseProvider` config
 - Use `AsNoTracking()` for read-only queries
 - For bulk updates/deletes, use `ExecuteUpdateAsync()`/`ExecuteDeleteAsync()` (see sql agent)
-- Don't forget to seed test data if needed
+- Verify appsettings.json has connection string (should exist from scaffold)

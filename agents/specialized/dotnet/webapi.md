@@ -173,7 +173,39 @@ This provides RFC 7807 compliant error responses automatically:
 }
 ```
 
-### 5. API Versioning (Optional)
+### 5. JWT Authentication (If Required)
+Add JWT authentication with these packages (use explicit versions for .NET 9):
+```bash
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer --version 9.0.0
+dotnet add package BCrypt.Net-Next
+```
+
+Configure in Program.cs with **default values** that tests can match:
+```csharp
+// JWT Authentication - NOTE: Tests must use these same default values!
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "YourApp-Dev-Secret-Key-Min-32-Characters!";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "YourApp";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "YourApp";
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+```
+
+Create IJwtService that reads from the same IConfiguration - this ensures tokens are generated with matching values.
+
+### 6. API Versioning (Optional)
 For production APIs, add versioning support:
 ```bash
 dotnet add package Asp.Versioning.Mvc
@@ -209,7 +241,7 @@ public class EntitiesV2Controller : ControllerBase
 - Query string: `/api/items?api-version=1.0`
 - Header: `X-Api-Version: 1.0`
 
-### 6. Test with curl/Swagger
+### 7. Test with curl/Swagger
 ```bash
 # Create
 curl -X POST http://localhost:5000/api/entities \
@@ -220,7 +252,7 @@ curl -X POST http://localhost:5000/api/entities \
 curl http://localhost:5000/api/entities
 ```
 
-### 7. Git Commit
+### 8. Git Commit
 ```bash
 git add .
 git commit -m "Add [Entity] API endpoints (CRUD)"
@@ -231,9 +263,20 @@ git commit -m "Add [Entity] API endpoints (CRUD)"
 - Controller in Controllers/
 - Working endpoints testable via Swagger
 
+## IMPORTANT - Workflow
+
+After creating endpoints:
+1. List the endpoints created (method, path, description)
+2. Show the DTOs created
+3. Confirm build succeeded
+4. **STOP and wait for user review**
+5. Tell user: "API endpoints complete. When ready, run `/test` to add tests"
+
+Do NOT proceed to testing automatically.
+
 ## Remember
 - Return appropriate status codes (201 Created, 204 No Content, 404 Not Found)
 - Use `async/await` for all DB operations
 - Don't expose entity IDs in URLs if security matters (use GUIDs)
 - Validate input — never trust the client
-- For production APIs, consider adding versioning (section 5)
+- For production APIs, consider adding versioning (section 6)

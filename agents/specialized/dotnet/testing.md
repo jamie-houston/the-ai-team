@@ -90,32 +90,93 @@ public class EntitiesControllerTests : IClassFixture<WebApplicationFactory<Progr
 }
 ```
 
-### 3. Test Database Setup
-Use in-memory or SQLite for tests:
+### 3. Test Database Setup (Advanced)
+Use a custom WebApplicationFactory with proper isolation:
 ```csharp
-public class EntitiesControllerTests : IClassFixture<WebApplicationFactory<Program>>
+public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
-    private readonly HttpClient _client;
+    public string DatabaseName { get; set; } = Guid.NewGuid().ToString();
 
-    public EntitiesControllerTests(WebApplicationFactory<Program> factory)
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        _client = factory.WithWebHostBuilder(builder =>
+        // CRITICAL: If using JWT auth, configure with SAME values as Program.cs defaults
+        // Token generation (JwtService) uses IConfiguration at runtime
+        // Token validation uses values captured at startup
+        // Mismatched issuer/audience = all authenticated requests fail
+        builder.ConfigureAppConfiguration((context, config) =>
         {
-            builder.ConfigureServices(services =>
+            config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                // Remove real DB
-                var descriptor = services.SingleOrDefault(
-                    d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
-                if (descriptor != null) services.Remove(descriptor);
-
-                // Add test DB
-                services.AddDbContext<AppDbContext>(options =>
-                    options.UseInMemoryDatabase("TestDb"));
+                // Match these to your Program.cs default values exactly!
+                ["Jwt:Key"] = "YourDefaultKeyFromProgramCs",
+                ["Jwt:Issuer"] = "YourAppName",
+                ["Jwt:Audience"] = "YourAppName"
             });
-        }).CreateClient();
+        });
+
+        builder.ConfigureServices(services =>
+        {
+            // Remove ALL EF-related services to avoid provider conflicts
+            // Just removing DbContextOptions is NOT enough - SQLite and InMemory will conflict
+            var descriptorsToRemove = services.Where(d =>
+                d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
+                d.ServiceType == typeof(AppDbContext) ||
+                d.ServiceType.FullName?.Contains("EntityFrameworkCore") == true).ToList();
+
+            foreach (var descriptor in descriptorsToRemove)
+                services.Remove(descriptor);
+
+            // Add in-memory database with unique name
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseInMemoryDatabase(DatabaseName));
+        });
     }
 }
 ```
+
+### 3a. Per-Test Isolation with IAsyncLifetime
+```csharp
+public abstract class IntegrationTestBase : IAsyncLifetime
+{
+    protected CustomWebApplicationFactory Factory { get; private set; } = null!;
+    protected HttpClient Client { get; private set; } = null!;
+
+    public Task InitializeAsync()
+    {
+        Factory = new CustomWebApplicationFactory { DatabaseName = Guid.NewGuid().ToString() };
+        Client = Factory.CreateClient();
+        return Task.CompletedTask;
+    }
+
+    public async Task DisposeAsync()
+    {
+        Client.Dispose();
+        await Factory.DisposeAsync();
+    }
+
+    // Seed data through Factory's service provider - NOT a separate DbContext
+    protected async Task SeedData<T>(T entity) where T : class
+    {
+        using var scope = Factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        context.Set<T>().Add(entity);
+        await context.SaveChangesAsync();
+    }
+}
+```
+
+### 3b. Handle Seed Data in Tests
+**Option A - Environment variable check** (recommended):
+Add to DbContext.OnModelCreating:
+```csharp
+// Skip seeding during tests
+if (Environment.GetEnvironmentVariable("SKIP_DB_SEED") != "true")
+{
+    SeedData(modelBuilder);
+}
+```
+
+**Also**: Remove any `HasDefaultValueSql("CURRENT_TIMESTAMP")` calls - InMemory doesn't support SQL functions.
 
 ### 4. FluentAssertions (cleaner syntax)
 ```csharp
@@ -158,14 +219,34 @@ git add .
 git commit -m "Add tests for [feature]"
 ```
 
-## Test Coverage Priorities 
-1. **Happy path** — main use case works
-2. **Not found** — 404 for missing resources
-3. **Validation** — 400 for bad input
-4. **Edge cases** — empty lists, null values
+## Test Coverage Priorities
+1. **Happy path** — main use case works (create, read, update, delete)
+2. **Authentication** — with token, without token
+3. **Authorization** — correct role, wrong role
+4. **Not found** — 404 for missing resources
+5. **Validation** — 400 for bad input
+6. **Edge cases** — empty lists, null values, special endpoints
+
+## Common Pitfalls
+
+- **JWT Mismatch**: If tokens aren't working, check that test config matches Program.cs defaults for Jwt:Key, Jwt:Issuer, Jwt:Audience
+- **Provider Conflict**: "Services for database providers X, Y have been registered" - remove ALL EF services, not just DbContextOptions
+- **Seed Data Conflicts**: Tests fail with 500 errors on login - seed data is loading and conflicting with test data
+- **Empty JSON Error**: "The input does not contain any JSON tokens" - the response is likely 401/403, not JSON
+
+## IMPORTANT - Workflow
+
+After creating tests:
+1. List the tests created
+2. Show test results (passed/failed count)
+3. **STOP and wait for user review**
+4. Tell user: "Tests complete. Run `/review` for final code review, or `/git commit` to finalize"
+
+Do NOT proceed automatically.
 
 ## Remember
 - Tests should be fast — use in-memory DB
 - One assertion per test (ideally)
 - Test names describe behavior: `Create_ValidEntity_ReturnsCreated`
 - Don't test framework code (EF, ASP.NET) — test logic
+- Ensure Program.cs has `public partial class Program { }` for test discoverability

@@ -60,6 +60,16 @@ Explicitly note what we're NOT building (helps manage time).
 ## Output Format
 Write the PRD to a file called `PRD.md` in the project root.
 
+## IMPORTANT - Workflow
+
+After creating the PRD:
+1. Show a brief summary of what was created
+2. List any clarifying questions that need answers before proceeding
+3. **STOP and wait for user review**
+4. Tell user: "Review the PRD. When ready, run `/scaffold [ProjectName]`"
+
+Do NOT proceed to scaffolding or implementation automatically.
+
 ## Remember
 - This is a 2-hour interview exercise — scope accordingly
 - Prioritize MVP features over nice-to-haves

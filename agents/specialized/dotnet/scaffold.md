@@ -74,6 +74,17 @@ dotnet add tests/ProjectName.Tests package Microsoft.EntityFrameworkCore.InMemor
 dotnet add tests/ProjectName.Tests package FluentAssertions
 ```
 
+**For JWT authentication** (if PRD requires auth):
+```bash
+dotnet add src/ProjectName.Api package Microsoft.AspNetCore.Authentication.JwtBearer --version 9.0.0
+dotnet add src/ProjectName.Api package BCrypt.Net-Next  # For password hashing
+```
+
+**For Swagger** (avoid 10.x namespace issues):
+```bash
+dotnet add src/ProjectName.Api package Swashbuckle.AspNetCore --version 6.5.0
+```
+
 ### 4. Configure Basics
 - Set up appsettings.json with connection string and provider:
   ```json
@@ -82,6 +93,15 @@ dotnet add tests/ProjectName.Tests package FluentAssertions
       "DefaultConnection": "Data Source=app.db"
     },
     "DatabaseProvider": "Sqlite"
+  }
+  ```
+  Note: For production SQL Server, change to:
+  ```json
+  {
+    "DatabaseProvider": "SqlServer",
+    "ConnectionStrings": {
+      "DefaultConnection": "Server=...;Database=...;Trusted_Connection=true;"
+    }
   }
   ```
 - Create `.editorconfig` in solution root for consistent code style:
@@ -129,6 +149,16 @@ git commit -m "Initial scaffold: .NET Web API with EF Core and xUnit"
 - Working project that builds (`dotnet build`)
 - Tests run (`dotnet test`)
 - Ready for domain implementation
+
+## IMPORTANT - Workflow
+
+After scaffolding:
+1. Show what was created (folder structure, packages added)
+2. Confirm build succeeded
+3. **STOP and wait for user review**
+4. Tell user: "Scaffold complete. When ready, run `/efcore` to create the data layer"
+
+Do NOT proceed to data layer automatically.
 
 ## Remember
 - Keep it minimal — no over-engineering
