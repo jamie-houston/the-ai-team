@@ -53,7 +53,7 @@ cp -r commands/* ~/.claude/commands/
 ### 2. Verify Installation
 ```bash
 claude /agents
-# Should show all 59 agents across core, orchestrators, specialized, and universal categories.
+# Should show all 61 agents across core, orchestrators, specialized, and universal categories.
 ```
 
 ### 3. Initialize Your Project
@@ -89,7 +89,7 @@ The @agent-team-configurator automatically sets up your perfect AI development t
 - **[Project Analyst](agents/orchestrators/project-analyst.md)** - Technology stack detection specialist who enables intelligent agent routing
 - **[Team Configurator](agents/orchestrators/team-configurator.md)** - AI team setup expert who detects your stack and configures optimal agent mappings
 
-### 💼 Framework Specialists (32 agents)
+### 💼 Framework Specialists (34 agents)
 - **Python (9 agents)**
   - **[Python Expert](agents/specialized/python/python-expert.md)** - Modern Python 3.12+ development, APIs, and project architecture
   - **[Django Expert](agents/specialized/python/django-expert.md)** - Comprehensive Django 5.0+ web development and ecosystem
@@ -118,11 +118,13 @@ The @agent-team-configurator automatically sets up your perfect AI development t
   - **[Component Architect](agents/specialized/vue/vue-component-architect.md)** - Vue 3 Composition API and component patterns
   - **[Nuxt Expert](agents/specialized/vue/vue-nuxt-expert.md)** - SSR, SSG, and full-stack Nuxt applications
   - **[State Manager](agents/specialized/vue/vue-state-manager.md)** - Pinia and Vuex state architecture
-- **.NET (9 agents)**
+- **.NET (11 agents)** - [See .NET Workflow Guide](docs/dotnet-workflow.md)
   - **[Blazor Expert](agents/specialized/dotnet/blazor.md)** - Blazor web apps with Server/WASM render modes
   - **[Console Expert](agents/specialized/dotnet/console.md)** - Console application scaffolding and CLI tools
   - **[Debug Expert](agents/specialized/dotnet/debug.md)** - Systematic debugging for .NET applications
   - **[EF Core Expert](agents/specialized/dotnet/efcore.md)** - Entity Framework Core data layer and migrations
+  - **[Razor Expert](agents/specialized/dotnet/razor.md)** - Razor Pages UI for MVC-style applications
+  - **[Refactor Expert](agents/specialized/dotnet/refactor.md)** - SOLID principles, repository pattern, and DI
   - **[Review Expert](agents/specialized/dotnet/review.md)** - .NET-specific code review and best practices
   - **[Scaffold Expert](agents/specialized/dotnet/scaffold.md)** - .NET project scaffolding and structure
   - **[SQL Expert](agents/specialized/dotnet/sql.md)** - LINQ queries and SQL optimization
@@ -159,11 +161,11 @@ The @agent-team-configurator automatically sets up your perfect AI development t
 - **[Sprint Planner](agents/core/sprint-planner.md)** - Agile planning, story estimation, and velocity tracking
 - **[UX/UI Designer](agents/core/ux-ui-designer.md)** - User flows, wireframes, design systems, and component specifications
 
-**Total: 59 specialized agents** working together to build your projects!
+**Total: 61 specialized agents** working together to build your projects!
 
 [Browse all agents →](agents/)
 
-### ⚡ Slash Commands (14 commands)
+### ⚡ Slash Commands (18 commands)
 
 Quick-access commands for common workflows. Use these with `/command-name` in Claude Code:
 
@@ -176,13 +178,17 @@ Quick-access commands for common workflows. Use these with `/command-name` in Cl
 | `/efcore` | Implement EF Core data layer and models |
 | `/webapi` | Create Web API controllers and endpoints |
 | `/test` | Add integration tests for API endpoints |
+| `/refactor` | Apply SOLID principles (extract repositories, DI) |
 | `/debug` | Systematic debugging for .NET issues |
 | `/review` | Quick code review before submission |
+| `/verify` | Verify implementation against PRD requirements |
 | `/git` | Git workflow and commit assistance |
 | `/sql` | SQL/LINQ query help and optimization |
 | `/orchestrate` | Start the project workflow orchestration |
 | `/add-blazor-ui` | Add Blazor UI to existing Web API |
+| `/add-razor-ui` | Add Razor Pages UI to existing Web API |
 | `/load-data` | Add data import/seeding functionality |
+| `/readme` | Generate project README documentation |
 
 [Browse all commands →](commands/)
 
