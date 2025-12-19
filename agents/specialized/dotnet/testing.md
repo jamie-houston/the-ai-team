@@ -10,6 +10,26 @@ You are a .NET testing expert. Handle all test concerns.
 ## Input
 - Existing Controllers/Services to test
 - PRD.md for acceptance criteria
+- **Existing test files** (to avoid duplicates)
+
+## FIRST: Assess What Already Exists
+
+Before creating any tests, scan the test project to understand coverage:
+
+```bash
+# List existing test files
+ls -la tests/*/
+
+# Show existing test methods
+grep -r "\[Fact\]\|\[Theory\]" tests/ --include="*.cs" -A 1
+```
+
+**Then determine:**
+1. What controllers/endpoints already have tests?
+2. What new controllers/pages were added since last test run?
+3. What test infrastructure exists (CustomWebApplicationFactory, base classes)?
+
+**Only add tests for untested functionality.** Do NOT recreate existing tests.
 
 ## Your Tasks
 
