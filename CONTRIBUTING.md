@@ -1,6 +1,6 @@
-# Contributing to Awesome Claude Agents
+# Contributing to The A.I. Team
 
-Thank you for your interest in contributing to Awesome Claude Agents! This document provides guidelines and instructions for contributing to our collection of specialized Claude sub-agents.
+Thank you for your interest in contributing to The A.I. Team! This document provides guidelines and instructions for contributing to our collection of specialized Claude sub-agents.
 
 ## 🎯 Our Mission
 
@@ -32,9 +32,9 @@ We are committed to providing a welcoming and inclusive environment. Please:
 
 ```bash
 # Fork the repository on GitHub, then:
-git clone https://github.com/YOUR_USERNAME/awesome-claude-agents.git
-cd awesome-claude-agents
-git remote add upstream https://github.com/ORIGINAL_OWNER/awesome-claude-agents.git
+git clone https://github.com/YOUR_USERNAME/the-ai-team.git
+cd the-ai-team
+git remote add upstream https://github.com/ORIGINAL_OWNER/the-ai-team.git
 ```
 
 ### 2. Create a Branch
@@ -309,13 +309,11 @@ Contributors will be:
 4. **Document well**: Good examples help users understand capabilities
 5. **Iterate**: Start simple and enhance based on feedback
 
-## 📞 Getting Help
+## Getting Help
 
-- **Discord**: [Join our community](https://discord.gg/awesome-claude-agents)
-- **Discussions**: Use GitHub Discussions for questions
-- **Issues**: Report bugs via GitHub Issues
-- **Email**: maintainers@awesome-claude-agents.dev
+- **Discussions**: Use [GitHub Discussions](https://github.com/jamie-houston/the-ai-team/discussions) for questions
+- **Issues**: Report bugs via [GitHub Issues](https://github.com/jamie-houston/the-ai-team/issues)
 
 ---
 
-Thank you for contributing to Awesome Claude Agents! Your expertise helps make Claude Code more powerful for everyone. 🚀
+Thank you for contributing to The A.I. Team! Your expertise helps make Claude Code more powerful for everyone. 🚀

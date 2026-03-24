@@ -2,14 +2,14 @@
 
 ## Quick Installation (Recommended)
 
-The easiest way to install Awesome Claude Agents is using the provided linking scripts.
+The easiest way to install The A.I. Team is using the provided linking scripts.
 
 ### macOS/Linux
 
 ```bash
 # Clone the repository
-git clone https://github.com/vijaythecoder/awesome-claude-agents.git
-cd awesome-claude-agents
+git clone https://github.com/jamie-houston/the-ai-team.git
+cd the-ai-team
 
 # Run the linking script
 ./link.sh
@@ -46,7 +46,7 @@ You should see all 59 agents listed across the four categories.
 To remove the symlinks:
 
 ```bash
-cd awesome-claude-agents
+cd the-ai-team
 ./unlink.sh
 ```
 

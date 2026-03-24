@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to link awesome-claude-agents to ~/.claude for global usage
+# Script to link the-ai-team to ~/.claude for global usage
 # This makes all agents and commands in this repository available globally in Claude Code
 
 set -e  # Exit on error
@@ -20,7 +20,7 @@ CLAUDE_AGENTS_DIR="$CLAUDE_DIR/agents"
 CLAUDE_COMMANDS_DIR="$CLAUDE_DIR/commands"
 
 echo "=================================================="
-echo "Awesome Claude Agents - Global Linking Script"
+echo "The A.I. Team - Global Linking Script"
 echo "=================================================="
 echo ""
 
@@ -70,7 +70,7 @@ for item in "$CLAUDE_AGENTS_DIR"/*; do
     if [ -L "$item" ]; then
         target=$(readlink "$item")
         # Check if it's linking to this repo (correctly or incorrectly)
-        if [[ "$target" == *"awesome-claude-agents"* ]]; then
+        if [[ "$target" == *"the-ai-team"* ]]; then
             echo -e "${YELLOW}Removing existing link: $(basename "$item") -> $target${NC}"
             rm "$item"
         fi
@@ -117,7 +117,7 @@ if [ -d "$REPO_COMMANDS_DIR" ]; then
     for item in "$CLAUDE_COMMANDS_DIR"/*; do
         if [ -L "$item" ]; then
             target=$(readlink "$item")
-            if [[ "$target" == *"awesome-claude-agents"* ]]; then
+            if [[ "$target" == *"the-ai-team"* ]]; then
                 echo -e "${YELLOW}Removing existing link: $(basename "$item") -> $target${NC}"
                 rm "$item"
             fi

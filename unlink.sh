@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to unlink awesome-claude-agents from ~/.claude
+# Script to unlink the-ai-team from ~/.claude
 # This removes the global agent and command links created by link.sh
 
 set -e  # Exit on error
@@ -16,7 +16,7 @@ CLAUDE_AGENTS_DIR="$CLAUDE_DIR/agents"
 CLAUDE_COMMANDS_DIR="$CLAUDE_DIR/commands"
 
 echo "=================================================="
-echo "Awesome Claude Agents - Unlink Script"
+echo "The A.I. Team - Unlink Script"
 echo "=================================================="
 echo ""
 
@@ -36,13 +36,13 @@ if [ -d "$CLAUDE_AGENTS_DIR" ]; then
 
         if [ -L "$TARGET" ]; then
             link_target=$(readlink "$TARGET")
-            # Only remove if it's linking to awesome-claude-agents
-            if [[ "$link_target" == *"awesome-claude-agents"* ]]; then
+            # Only remove if it's linking to the-ai-team
+            if [[ "$link_target" == *"the-ai-team"* ]]; then
                 rm "$TARGET"
                 echo -e "${GREEN}✓${NC} Removed: agents/$dir"
                 ((agents_removed++))
             else
-                echo -e "${YELLOW}⊘${NC} Skipped: agents/$dir (not linked to awesome-claude-agents)"
+                echo -e "${YELLOW}⊘${NC} Skipped: agents/$dir (not linked to the-ai-team)"
             fi
         else
             echo -e "${YELLOW}⊘${NC} Skipped: agents/$dir (not a symlink)"
@@ -64,8 +64,8 @@ if [ -d "$CLAUDE_COMMANDS_DIR" ]; then
     for item in "$CLAUDE_COMMANDS_DIR"/*; do
         if [ -L "$item" ]; then
             link_target=$(readlink "$item")
-            # Only remove if it's linking to awesome-claude-agents
-            if [[ "$link_target" == *"awesome-claude-agents"* ]]; then
+            # Only remove if it's linking to the-ai-team
+            if [[ "$link_target" == *"the-ai-team"* ]]; then
                 rm "$item"
                 echo -e "${GREEN}✓${NC} Removed: commands/$(basename "$item")"
                 ((commands_removed++))
@@ -73,7 +73,7 @@ if [ -d "$CLAUDE_COMMANDS_DIR" ]; then
         fi
     done
     if [ $commands_removed -eq 0 ]; then
-        echo -e "${YELLOW}No awesome-claude-agents command symlinks found.${NC}"
+        echo -e "${YELLOW}No the-ai-team command symlinks found.${NC}"
     fi
 else
     echo -e "${YELLOW}~/.claude/commands directory does not exist.${NC}"
@@ -86,7 +86,7 @@ echo ""
 total_removed=$((agents_removed + commands_removed))
 
 if [ $total_removed -eq 0 ]; then
-    echo -e "${YELLOW}No awesome-claude-agents symlinks found.${NC}"
+    echo -e "${YELLOW}No the-ai-team symlinks found.${NC}"
 else
     echo "=================================================="
     echo -e "${GREEN}Success!${NC} Removed $agents_removed agent directory link(s) and $commands_removed command link(s)."
