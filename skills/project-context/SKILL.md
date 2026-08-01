@@ -9,7 +9,7 @@ Planning docs live in **Obsidian**, not in the repo. The repo carries only what
 binds the code. Sessions load one story file, do one unit of work, write status
 back, and end.
 
-Vault root: `/Users/jamiehouston/Documents/mybrain/areas/work/coding/side-projects/`
+Vault root: `~/Documents/<vault>/areas/work/coding/side-projects/`
 
 The cost reason: `CLAUDE.md` files that say "read PROGRESS.md and ROADMAP.md
 first" turn every one-off task into a directed 15K-token read. Moving those out
@@ -95,6 +95,22 @@ closing message Jamie scrolled past.
   "Needs Jamie, not code" / "Needs a decision, not a test" sections.
 - Genuinely *blocking* questions still use `AskUserQuestion` mid-session. The
   list is for what can wait a session or two.
+- **When the item is an action Jamie can just run, give the exact command(s),
+  not a paragraph explaining the situation.** A sentence of *why* is fine
+  above them, but the thing Jamie reads last must be copy-pasteable — not a
+  decision he has to turn back into a command himself. Wrong: explaining that
+  `db:reset-demo` needs a password and describing what it does. Right:
+
+  ```bash
+  export $(grep -v '^#' .env.staging | xargs)
+  export SEED_DEMO_PASSWORD='<pick one, write it down>'
+  npm run db:reset-demo
+  ```
+
+  If the action only makes sense with a value only Jamie has (a password, a
+  yes/no on scope), say so in one clause and leave a placeholder in the
+  command — don't hold the whole command back pending an answer. This applies
+  in both places: the `inbox.md` item text and the session's closing message.
 
 ### Which model for this step
 
