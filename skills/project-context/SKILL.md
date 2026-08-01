@@ -70,6 +70,50 @@ Jamie can redirect before any tokens go into the wrong step.
 If a phase turns out bigger than one story, split it and say so. A story that
 would exceed ~8 KB is two stories.
 
+**Ask outstanding questions at the start of the session, not the end.** Any
+`needs-decision` step, ambiguous scope, or blocker noted in CURRENT POSITION
+should be raised right after routing, before implementation work starts. Jamie
+is fine deferring a question if it's asked early, but if it's raised as a
+wrap-up note he's about to close the session and misses it.
+
+**This is backed by a durable list, not by memory: the `## FOR JAMIE` section at
+the top of `inbox.md`.** Read it on **every** session, not just
+`needs-planning` ones — it is cheap and it is the only thing that survives a
+closing message Jamie scrolled past.
+
+- **Name the open count in the routing line**, e.g. *"Phase 0 is `planned`; 2
+  questions are waiting on you."* Then give the one-line gist of each and let
+  Jamie choose whether to answer now or defer. Do not re-explain them at length.
+- **Anything you would have put in a closing message that needs an answer goes
+  in that section instead** — appended at the bottom of it, with what it blocks.
+  A question that blocks nothing stays in the closing message and dies there.
+- **On an answer, delete the item** and write the answer where it binds (the
+  story, the index, or the repo's `ARCHITECTURE.md`). An answer that exists only
+  in a transcript is lost.
+- **Cap is 7.** At the cap, resolve or downgrade one before adding. Items that
+  will sit for weeks are backlog, not questions — move them to the index's
+  "Needs Jamie, not code" / "Needs a decision, not a test" sections.
+- Genuinely *blocking* questions still use `AskUserQuestion` mid-session. The
+  list is for what can wait a session or two.
+
+### Which model for this step
+
+Recommend a model alongside the routing line — the step already tells you the
+kind of work, so the model follows for free:
+
+| Step | Model | Why |
+|---|---|---|
+| `needs-decision`, `needs-planning` | Opus (or Fable for open-ended exploration) | Judgment-heavy: weighing tradeoffs, writing a story from scratch. |
+| `planned`, `in-progress` (real implementation) | Opus | Multi-file changes benefit from stronger reasoning. |
+| `verified` → commit, `committed` → deploy/watch CI, `deployed` → smoke-check | Sonnet | Mechanical or supervisory — running commands and reading output, not deciding anything. |
+
+Say it as part of the one-line routing confirmation, e.g. *"`committed` — I'll
+push and watch CI; Sonnet is enough for this one."*
+
+If the recommended model differs from the model currently active, **stop and
+wait** for Jamie to switch (`/model`) or explicitly say to proceed anyway —
+don't just note the mismatch and continue on the wrong model.
+
 ### Don't read what you don't need
 
 - One-off task in the repo, no phase work: `CLAUDE.md` + `ARCHITECTURE.md` only.
@@ -93,7 +137,12 @@ in that case record where it stopped, which is the part that makes resuming chea
    `ARCHITECTURE.md`. A constraint that lives only in the vault is invisible
    during a one-off task, which is the exact failure this layout prevents.
 5. Update the hub's Status line if the project's overall state changed.
-6. Commit the vault and the repo separately.
+6. **Anything you are about to raise in the closing message that needs an
+   answer or an action from Jamie goes in `inbox.md`'s `## FOR JAMIE` section**,
+   with what it blocks. Say it in the closing message *as well* — but the file
+   is what survives. A decision that has been "reported and still nobody's" for
+   three sessions running is the proof that a closing message is not a record.
+7. Commit the vault and the repo separately.
 
 Then say the step is done, name what the next step is, and suggest ending the
 session. Record only what the next session cannot cheaply rediscover — **not**
