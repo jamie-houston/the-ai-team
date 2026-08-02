@@ -227,6 +227,11 @@ closing message Jamie scrolled past.
 - **Identify items by a short slug, not an ordinal** — `[stripe-test-mode]`, not
   `#3`. Two lanes appending both produce "#6", and deleting an item renumbers
   everything below it, so a reference written elsewhere silently retargets.
+- **End every item with a bolded `**Answer:**` line — that is the one place
+  Jamie edits an existing item.** Appending a new item is still bottom-only;
+  replying to one is filling in its own `Answer:` line, not a paragraph tacked
+  on after it. A non-empty `Answer:` is what tells the next session the item is
+  ready to process.
 - **On an answer, delete the item** and write the answer with its owner above.
   An answer that exists only in a transcript is lost; an answer left here *as
   well* is the duplication this file exists to prevent.
@@ -258,6 +263,22 @@ closing message Jamie scrolled past.
   yes/no on scope), say so in one clause and leave a placeholder in the
   command — don't hold the whole command back pending an answer. This applies
   in both places: the `inbox.md` item text and the session's closing message.
+
+### Verification checklists (e.g. `operations.md`'s manual sweep)
+
+The same clunky-answer problem shows up wherever Jamie is asked to browser-check
+a list of items and report back — a release sweep, a sign-off list. Use the same
+fix: a real Markdown checkbox per item, plus a bolded `**Notes:**` line reserved
+for what he found.
+
+- **Check the box** when the step passed clean. **Leave it unchecked and fill
+  `Notes:`** when something's off — don't append a stray paragraph after the
+  item, and don't touch other items' boxes or notes.
+- An agent draining the list turns a filled `Notes:` line into a story or an
+  `open-work.md` row (never leaves the finding sitting only in the checklist),
+  then clears the note and checks the box.
+- When every item in a checklist section is checked, the section is done —
+  archive or delete it per that file's own instructions, same as inbox items.
 
 ### Which model for this step
 
