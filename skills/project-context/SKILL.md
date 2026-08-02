@@ -241,6 +241,12 @@ don't just note the mismatch and continue on the wrong model.
   the inbox, `operations.md` only when deploying or debugging an environment.
   Reading all three costs what the unsplit index did — which is the thing the
   split undid. **Never merge them back into `README.md`.**
+- **Never pad a markdown table to align its columns.** Write `| a | b |` and
+  leave it ragged. Padding cells to the widest cell in the column was **half of
+  `open-work.md` and two thirds of `ledger.md`** — 68 KB of whitespace across
+  the two, in tables whose cells run 1,700 characters, where alignment is
+  unreadable anyway. Nothing in the vault re-pads automatically; it only comes
+  back if an agent does it while adding a row.
 
 ## Finishing a step
 
