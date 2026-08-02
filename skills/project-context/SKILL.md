@@ -1,6 +1,6 @@
 ---
 name: project-context
-description: Load and update project context from Jamie's Obsidian vault instead of from markdown in the repo, so sessions stay short and repos stay lean. Use when Jamie says "work on the next phase", "what's next", "pick up where we left off", "what was I working on", or names a story file; when finishing a step that needs its status written back; or when a repo is carrying planning markdown that should be migrated out to the vault.
+description: Load and update project context from Jamie's Obsidian vault instead of from markdown in the repo, so sessions stay short and repos stay lean. Use when Jamie says "work on the next phase", "what's next", "pick up where we left off", "what was I working on", or names a story file; when finishing a step that needs its status written back; or when a repo is carrying planning markdown that should be migrated out to the vault. Takes an optional lane argument — `plan`, `impl`, `deploy`, `review`, `docs` — declaring what this session is for; with no argument it reads the lanes already in flight and offers the ones that can run alongside them.
 ---
 
 # Project context
@@ -98,6 +98,22 @@ A one-line append and a one-line delete have no conflict window — the same tri
 Jamie**; another lane has it. A stale row from a session that crashed is
 normal — say so and take it over, don't silently work around it.
 
+### The lanes
+
+| Lane | Steps it takes | May write | Must not touch |
+|---|---|---|---|
+| `plan` | `needs-decision`, `needs-planning` | its story file, that story's ledger row, `inbox.md` | the repo, CURRENT POSITION |
+| `impl` | `planned`, `in-progress`, `verified` | everything — working tree, repo git, CURRENT POSITION | — |
+| `deploy` | `committed`, `deployed` | `operations.md`, the deployed story's log, `inbox.md` | the working tree: no commits, no branch switches, no `build` / `db:generate` / dev server / integration tests. It pushes and promotes refs that already exist. |
+| `review` | any — reads a diff or a PR | `open-work.md`, `inbox.md`, the reviewed story's log | the working tree — read-only in the repo |
+| `docs` | any | vault files; repo docs **only when no `impl` row is in flight** | the working tree while `impl` holds it |
+
+**What coexists.** `impl` + `plan` on a *different* story, `impl` + `review`, and
+`impl` + `deploy` of an already-committed story all run fine — that last pair is
+the common case: promote story N while N+1 is being built. Never two `impl`
+lanes, never two `plan` lanes on the same story, never `docs` editing repo files
+while `impl` holds the tree.
+
 **Only ever `Edit` a shared vault file — never `Write` it.** `stories/README.md`
 and `inbox.md` are written by every lane. A whole-file `Write` lands your
 session-start read on top of another lane's edit from twenty minutes ago and
@@ -126,6 +142,38 @@ exists to prevent.
 Then verify rather than trust — the index records intent at last write, and the
 tree may have moved. `git log --oneline -5` and `git status` is enough. **If the
 index contradicts the repo, the repo wins**: say so, fix the index, then proceed.
+
+### Declaring the lane
+
+**`/project-context <lane>`** — `plan`, `impl`, `deploy`, `review`, `docs` —
+says what this session is for. Jamie may also just say it in words ("this one's
+a planning session"); same thing. The lane fixes what the session is allowed to
+write, per the table above; the step still decides *which* work it picks up.
+
+Reconcile the two before acting:
+
+- **Lane and step agree** → confirm in the routing line and go.
+- **The lane has no work under the current position** — `deploy` when nothing is
+  `committed`, `plan` when everything is already planned — → say so, name what
+  that lane *could* do (an older promotable story, an unstoried row in
+  `open-work.md`), and let Jamie choose. Never quietly do a different lane's work
+  because the declared one had nothing.
+- **The lane is already claimed** in `## Lanes in flight` → stop and tell Jamie,
+  as above. For `impl` that is absolute; the other lanes are only a clash when
+  the row covers the same story.
+
+**No lane given?** Read `## Lanes in flight` *before* proposing anything, then:
+
+- **One viable lane** → don't ask. State it in the routing line and go.
+- **Several** → `AskUserQuestion`, one option per lane, best first. The
+  description says the story and step it would pick up and why it's safe
+  alongside what's running — *"deploy — promote [[60-plan-change-next-period]],
+  already committed; doesn't touch the tree impl is holding."*
+- **A lane that is free but has no available work is not an option.** Don't pad
+  the list to fill it out.
+- **None viable** — one `impl` lane already holds the only live story and there
+  is nothing to plan, promote, or review → say that, and suggest not opening a
+  second session rather than inventing work for it.
 
 Route on the **step**, and do exactly one step per session unless Jamie says
 otherwise:
@@ -216,11 +264,12 @@ closing message Jamie scrolled past.
 Recommend a model alongside the routing line — the step already tells you the
 kind of work, so the model follows for free:
 
-| Step | Model | Why |
+| Step / lane | Model | Why |
 |---|---|---|
 | `needs-decision`, `needs-planning` | Opus (or Fable for open-ended exploration) | Judgment-heavy: weighing tradeoffs, writing a story from scratch. |
 | `planned`, `in-progress` (real implementation) | Opus | Multi-file changes benefit from stronger reasoning. |
 | `verified` → commit, `committed` → deploy/watch CI, `deployed` → smoke-check | Sonnet | Mechanical or supervisory — running commands and reading output, not deciding anything. |
+| the `review` lane | Opus | Finding a real defect in a diff is judgment, not pattern-matching. |
 
 Say it as part of the one-line routing confirmation, e.g. *"`committed` — I'll
 push and watch CI; Sonnet is enough for this one."*
