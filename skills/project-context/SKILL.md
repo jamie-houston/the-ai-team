@@ -23,7 +23,10 @@ costs one cold write next time and nothing in between.
 ```
 side-projects/<project>/
   <project-name>.md        # hub: status, where things live, next steps, decisions
-  stories/README.md        # index + status table + ground rules
+  stories/README.md        # ENTRY POINT: position, lanes, step machine, phases, ground rules
+  stories/ledger.md        # story status table         ┐ split out of README once it
+  stories/open-work.md     # open work + open items     │ passes ~30 KB — README is
+  stories/operations.md    # runbook facts, release     ┘ loaded whole every session
   stories/NN-<slug>.md     # one unit of work, self-contained
   roadmap-phases.md        # the plan
   prd.md, progress.md      # requirements, history
@@ -33,10 +36,90 @@ side-projects/<project>/
 In the repo: `CLAUDE.md`, `README.md`, `ARCHITECTURE.md` (binding constraints
 only), and operational runbooks like `docs/DEPLOY.md`. Nothing else.
 
+## One fact, one owner
+
+**This is the rule the rest of the file is built on.** Every fact has exactly
+one home. Everywhere else references it — by story link, by inbox item slug,
+by section name — and does not restate it.
+
+| Fact | Sole owner |
+|---|---|
+| What happened in a session | that story's session log |
+| Real work with no story yet | "Open work not yet storied" — in `open-work.md` if the index is split, else the index |
+| A deliberate non-fix, or a decision with no work attached | "Open items" — same file as above |
+| Something Jamie must do or answer | `inbox.md` → `## FOR JAMIE` |
+| Raw unshaped input from Jamie | `inbox.md` → bottom half |
+| Anything that binds the code | the repo — `ARCHITECTURE.md` / `docs/arch/` |
+| Where the next session starts | index → CURRENT POSITION |
+| How this workflow works | **this file** — not the vault files |
+
+Two consequences worth stating outright, because sessions get both wrong:
+
+- **A session that finishes work writes the durable fact once, then links to
+  it.** Recording the same finding in the position block *and* the open-work
+  table *and* the story log is the failure mode, not thoroughness. It has now
+  forced three cleanups of `stories/README.md` and one of `inbox.md`.
+- **Discharging an item means deleting it.** Not striking it through, not
+  replacing it with a summary of what it used to say. If the trace has value it
+  already lives with its owner above; if it doesn't, it's noise. The vault is
+  git-tracked — history is the archive, and `git log -S` finds anything.
+
+**CURRENT POSITION is a form, not a narrative, and it is capped at 15 lines.**
+Fixed fields only: phase, active story + step, blocked-on, next, last-touched.
+A session replaces it wholesale; it never appends. If something won't fit a
+field, that is the signal it belongs to a different owner above — relocate it,
+don't grow the block. Prose is what makes a position block unmergeable: every
+session restates the last one's context to make its own paragraph read, and the
+block is what every session loads whole.
+
+The vault's `.git/hooks/pre-commit` enforces the cap on every
+`side-projects/*/stories/README.md`. Git does not version hooks, so **if the
+vault is ever re-cloned the hook is gone** — recover it with
+`git show <sha>:...` from the 2026-08-02 commit, or rewrite it: count the
+contiguous `>` lines after `CURRENT POSITION` and fail over 15.
+
+## Running sessions in parallel
+
+Several sessions may be open on the same project at once. **At most one of them
+implements.** That lane owns the repo's working tree, the repo's git writes, and
+the CURRENT POSITION block. Every other lane — planning, review, deploy-watch,
+docs — writes only its own story file and its own rows.
+
+**Claim before you write.** The index carries a `## Lanes in flight` table. Add
+your row as your *first* write and delete it when you close:
+
+| Lane | Story | Step | Started |
+|---|---|---|---|
+| impl | [[60-plan-change-next-period]] | deployed | 2026-08-02 09:14 |
+| plan | [[62-recurring-availability]] | needs-planning | 2026-08-02 10:02 |
+
+A one-line append and a one-line delete have no conflict window — the same trick
+`inbox.md` uses. **If a row already covers the work you routed to, stop and tell
+Jamie**; another lane has it. A stale row from a session that crashed is
+normal — say so and take it over, don't silently work around it.
+
+**Only ever `Edit` a shared vault file — never `Write` it.** `stories/README.md`
+and `inbox.md` are written by every lane. A whole-file `Write` lands your
+session-start read on top of another lane's edit from twenty minutes ago and
+looks like a clean success. Before editing a section, re-read *that section*
+(`grep -n` the heading, then `Read` with `offset`/`limit`); the read you did at
+routing time is stale by the time you finish a step.
+
+**Only the impl lane touches the repo** — not just its files, but its dev server,
+its database, its generated client, and its git. The project's own `CLAUDE.md`
+lists which commands that rules out. A non-implementation lane that wants a check
+run names the command and leaves it to the impl lane.
+
+**Name your lane** in the routing line and in every session-status line, so Jamie
+can tell parallel terminals apart.
+
 ## Starting work — "work on the next phase"
 
-**Always read `stories/README.md` first.** It is small on purpose and its
-**CURRENT POSITION** block states the phase, the step, and any blocker. Never
+**Always read `stories/README.md` first, and by default read nothing else.** It
+is small on purpose — when it grows past ~30 KB the bulk gets split into
+`ledger.md` / `open-work.md` / `operations.md` and the README keeps only the
+entry-point sections. Its **CURRENT POSITION** block states the phase, the step,
+and any blocker. Never
 scan `roadmap-phases.md` to work out what's next; that is a 63 KB read the index
 exists to prevent.
 
@@ -65,7 +148,13 @@ assume a file exists because another project has one.
 
 Confirm the routing in one line before acting — *"Phase 0 is `needs-planning`;
 I'll write story 08 from the roadmap section and stop for your review"* — so
-Jamie can redirect before any tokens go into the wrong step.
+Jamie can redirect before any tokens go into the wrong step. Name the lane in
+that line too.
+
+**Then claim it before your first write** — add your row to `## Lanes in flight`
+and set the story's Stories-table row to `in-progress` *now*, not at the end of
+the session. Status written only on finish is exactly what lets two lanes plan
+the same story twice.
 
 If a phase turns out bigger than one story, split it and say so. A story that
 would exceed ~8 KB is two stories.
@@ -87,9 +176,12 @@ closing message Jamie scrolled past.
 - **Anything you would have put in a closing message that needs an answer goes
   in that section instead** — appended at the bottom of it, with what it blocks.
   A question that blocks nothing stays in the closing message and dies there.
-- **On an answer, delete the item** and write the answer where it binds (the
-  story, the index, or the repo's `ARCHITECTURE.md`). An answer that exists only
-  in a transcript is lost.
+- **Identify items by a short slug, not an ordinal** — `[stripe-test-mode]`, not
+  `#3`. Two lanes appending both produce "#6", and deleting an item renumbers
+  everything below it, so a reference written elsewhere silently retargets.
+- **On an answer, delete the item** and write the answer with its owner above.
+  An answer that exists only in a transcript is lost; an answer left here *as
+  well* is the duplication this file exists to prevent.
 - **Cap is 7.** At the cap, resolve or downgrade one before adding. Items that
   will sit for weeks are backlog, not questions — move them to the index's
   "Needs Jamie, not code" / "Needs a decision, not a test" sections.
@@ -102,10 +194,17 @@ closing message Jamie scrolled past.
   `db:reset-demo` needs a password and describing what it does. Right:
 
   ```bash
-  export $(grep -v '^#' .env.staging | xargs)
+  set -a; . ./.env.staging; set +a
   export SEED_DEMO_PASSWORD='<pick one, write it down>'
   npm run db:reset-demo
   ```
+
+  **Load a `.env` by sourcing it, never by `grep`/`cat`/`export $(...)`.**
+  Sourcing keeps the value inside the shell; piping the file through a command
+  routes the secret into the transcript — that is exactly how this project
+  leaked a prod password, while *verifying* it. The repo's
+  `.claude/settings.json` denies `grep`/`cat`/`sed` on `.env*`, so the piped
+  form is also a command that simply won't run.
 
   If the action only makes sense with a value only Jamie has (a password, a
   yes/no on scope), say so in one clause and leave a placeholder in the
@@ -137,32 +236,57 @@ don't just note the mismatch and continue on the wrong model.
 - Implementing a story: that story + `CLAUDE.md` + `ARCHITECTURE.md`.
 - `progress.md` and `prd.md` are history and requirements — read them only when
   the story points at a specific section, and never whole.
+- **The index's split files are read by step, never by default.** `ledger.md`
+  only to check a story's status, `open-work.md` only when planning or draining
+  the inbox, `operations.md` only when deploying or debugging an environment.
+  Reading all three costs what the unsplit index did — which is the thing the
+  split undid. **Never merge them back into `README.md`.**
 
 ## Finishing a step
 
 Do this **every time a step completes**, including when Jamie stops mid-step —
 in that case record where it stopped, which is the part that makes resuming cheap.
 
-1. **Update the CURRENT POSITION block** in `stories/README.md`: phase, step,
-   blocker, date. *This edit must never be skipped* — it is the only thing the
-   next session reads to orient, so skipping it silently breaks the workflow.
-2. Update the phase table's Step column to match.
-3. Tick the story's checklist; append to its session log — what shipped, what was
-   deliberately left, and where it stops if unfinished.
-4. **Does any decision bind the code?** It also belongs in the repo's
-   `ARCHITECTURE.md`. A constraint that lives only in the vault is invisible
-   during a one-off task, which is the exact failure this layout prevents.
-5. Update the hub's Status line if the project's overall state changed.
-6. **Anything you are about to raise in the closing message that needs an
-   answer or an action from Jamie goes in `inbox.md`'s `## FOR JAMIE` section**,
-   with what it blocks. Say it in the closing message *as well* — but the file
-   is what survives. A decision that has been "reported and still nobody's" for
-   three sessions running is the proof that a closing message is not a record.
-7. Commit the vault and the repo separately.
+**Write each fact to its owner first and the position block last.** The order
+matters: a session that starts with the position block writes the narrative
+there and then copies it outward, which is how the block grew to 494 lines
+twice. Written in this order, the block has nothing left to say but pointers.
 
-Then say the step is done, name what the next step is, and suggest ending the
-session. Record only what the next session cannot cheaply rediscover — **not**
-file structure, what the code does, commit history, or test names.
+1. **Tick the story's checklist; append to its session log** — what shipped,
+   what was deliberately left, and where it stops if unfinished. This is the
+   only account of the session, so ship and promote detail goes *here*.
+2. **Does any decision bind the code?** Then it belongs in the repo's
+   `ARCHITECTURE.md` / `docs/arch/`, not the vault. A constraint that lives only
+   in the vault is invisible during a one-off task, which is the exact failure
+   this layout prevents.
+3. **Did the session turn up work nobody has storied?** One row in "Open work
+   not yet storied" (`open-work.md` when the index is split). A deliberate
+   non-fix goes in "Open items", same file.
+4. Update the story's row in the **Stories** table (`ledger.md` when split), and
+   the **Phases** table in the index if the project has one. These rows are the status ledger — when one
+   disagrees with the position block, this is the one that was left stale.
+5. **Anything needing an answer or action from Jamie → `inbox.md`'s
+   `## FOR JAMIE`**, with what it blocks and the exact command if there is one.
+   Say it in the closing message *as well* — but the file is what survives. A
+   decision "reported and still nobody's" for three sessions running is the
+   proof that a closing message is not a record.
+6. Update the hub's Status line if the project's overall state changed.
+7. **Now replace the CURRENT POSITION block.** Fill the fields from the work
+   above and reference it — story link, inbox item slug, section name. Never
+   append to the old block; replace it. If a fact has no owner yet, give it one
+   in step 1–5 rather than parking the prose here. *This edit must never be
+   skipped* — it is the only thing the next session reads to orient.
+8. **Commit the vault and the repo separately, and stage an explicit pathspec —
+   never `-A`, never `-a`.** `git add stories/README.md stories/61-foo.md
+   inbox.md && git commit -m …`. Other lanes have edits in flight in the same
+   vault; `git add -A` commits their half-written files under your message, and
+   there is no signal that it happened. If `.git/index.lock` exists another lane
+   is mid-commit — wait and retry; never delete the lock.
+
+Then name what the next step is and suggest ending the session, and close with
+the session-status line below. Record only what the next session cannot
+cheaply rediscover — **not** file structure, what the code does, commit
+history, or test names.
 
 ## Keep stories small
 
@@ -177,6 +301,25 @@ When the story is updated, say so and suggest ending the session. Do not hold a
 session open "in case" — that is the pattern this whole approach exists to avoid.
 If Jamie steps away mid-task, write the half-finished state and where it stops
 *before* going idle.
+
+**Every response given under this skill ends with an explicit session-status
+line** — not just the final one. Jamie should never have to infer it from
+prose:
+
+> **Session: done** — \<one clause: what's finished and why nothing is left
+> to do\>
+> **Session: not done** — \<one clause: what's still open — a step in
+> progress, a question in [[inbox]] blocking the next action, verification
+> not yet run\>
+
+"Done" means: the current step's owner-writes are all committed (story log,
+index, `ARCHITECTURE.md`/`docs/arch` if code-binding, `inbox.md`, position
+block) and nothing is left mid-air — not that the whole project is finished.
+A `needs-planning` session that stopped for Jamie's review, per the routing
+table, is **done** with reason "stopped for review, as the step requires" —
+that is the correct exit, not an open loop. Reserve **not done** for a
+session that is mid-step with no owner written yet, or is waiting on an
+answer it hasn't gotten.
 
 ## Migrating a repo into this layout
 
