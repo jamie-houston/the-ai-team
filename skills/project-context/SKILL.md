@@ -23,14 +23,14 @@ costs one cold write next time and nothing in between.
 ```
 side-projects/<project>/
   <project-name>.md        # hub: status, where things live, next steps, decisions
+  inbox.md                 # two-way queue: `## FOR JAMIE` on top, Jamie's dumps below
   stories/README.md        # ENTRY POINT: position, lanes, step machine, phases, ground rules
   stories/ledger.md        # story status table         ┐ split out of README once it
   stories/open-work.md     # open work + open items     │ passes ~30 KB — README is
   stories/operations.md    # runbook facts, release     ┘ loaded whole every session
   stories/NN-<slug>.md     # one unit of work, self-contained
-  roadmap-phases.md        # the plan
   prd.md, progress.md      # requirements, history
-  archive/                 # design handoffs, dead ends
+  archive/                 # design handoffs, dead ends, spent roadmaps
 ```
 
 In the repo: `CLAUDE.md`, `README.md`, `ARCHITECTURE.md` (binding constraints
@@ -104,7 +104,7 @@ normal — say so and take it over, don't silently work around it.
 |---|---|---|---|
 | `plan` | `needs-decision`, `needs-planning` | its story file, that story's ledger row, `inbox.md` | the repo, CURRENT POSITION |
 | `impl` | `planned`, `in-progress`, `verified` | everything — working tree, repo git, CURRENT POSITION | — |
-| `deploy` | `committed`, `deployed` | `operations.md`, the deployed story's log, `inbox.md` | the working tree: no commits, no branch switches, no `build` / `db:generate` / dev server / integration tests. It pushes and promotes refs that already exist. |
+| `deploy` | `committed`, `deployed` | `operations.md`, the deployed story's log, `inbox.md`, `open-work.md` (draining rows this promote discharges — see *Finishing a step*) | the working tree: no commits, no branch switches, no `build` / `db:generate` / dev server / integration tests. It promotes refs that already exist; the push belongs to `impl` (see *Deploying in batches*). |
 | `review` | any — reads a diff or a PR | `open-work.md`, `inbox.md`, the reviewed story's log | the working tree — read-only in the repo |
 | `docs` | any | vault files; repo docs **only when no `impl` row is in flight** | the working tree while `impl` holds it |
 
@@ -129,15 +129,48 @@ run names the command and leaves it to the impl lane.
 **Name your lane** in the routing line and in every session-status line, so Jamie
 can tell parallel terminals apart.
 
+### Deploying in batches
+
+**The `impl` lane pushes; the `deploy` lane promotes.** A push to
+`origin/staging` is what runs CI, so it belongs to the session that made the
+commit — one story per CI run, and a red is attributable to the story whose
+context is still warm. Batch the pushes instead and N stories hit CI as one
+blob, which turns every red into a bisect across all of them. Push and **don't
+wait on CI**: the next session's first act is checking whether `origin/staging`
+is green, and if it isn't, that is the lane.
+
+**Promoting is what batches.** The queue is a fact git already holds — no
+counter, no vault field to keep in sync:
+
+```bash
+git log origin/main..origin/staging --oneline
+```
+
+Promote when any one of these is true, not after every impl:
+
+- **3+ stories pending**, or
+- **nothing in the index is ready to plan or implement** — drain the queue rather
+  than idle, or
+- **the batch fixes something broken in prod** — go now, ignore the count, or
+- **the batch carries a schema migration** — promote it earlier and smaller than
+  the count rule suggests. Several migrations landing together is the riskiest
+  shape there is, and one smoke check then has to cover all of them at once.
+
+**Read the range before offering `deploy` at routing time.** Under the threshold
+with impl work available, `deploy` is not the lane — say what's pending, and
+route to the work. Staging sitting ahead of prod carries its own cost: an
+environment-difference bug (`scheduling`'s staging/prod timezone mismatch) hides
+longer, and lands with more changes in flight to confuse attribution.
+
 ## Starting work — "work on the next phase"
 
 **Always read `stories/README.md` first, and by default read nothing else.** It
 is small on purpose — when it grows past ~30 KB the bulk gets split into
 `ledger.md` / `open-work.md` / `operations.md` and the README keeps only the
 entry-point sections. Its **CURRENT POSITION** block states the phase, the step,
-and any blocker. Never
-scan `roadmap-phases.md` to work out what's next; that is a 63 KB read the index
-exists to prevent.
+and any blocker. Never scan a plan or history file to work out what's next —
+`archive/roadmap-phases.md` is 63 KB, and that read is what the index exists to
+prevent.
 
 Then verify rather than trust — the index records intent at last write, and the
 tree may have moved. `git log --oneline -5` and `git status` is enough. **If the
@@ -181,18 +214,20 @@ otherwise:
 | Step | Do this |
 |---|---|
 | `needs-decision` | Two or more candidates and no obvious winner. **Present them with sizes and tradeoffs and ask Jamie to pick** — do not choose silently. Then update the position to the chosen work's real step and re-route. |
-| `needs-planning` | Read **only** the source the index points at — a `## Phase N` section if the project has a phase roadmap (grep the heading, read to the next `## `), otherwise the relevant row of the index's "open work not yet storied" table. Write it up as the next numbered story, at the depth of the project's existing shipped stories. Then **stop and let Jamie review** — do not plan and implement in one session. |
+| `needs-planning` | Read **only** the source the index points at — usually a row of "open work not yet storied", or an [[inbox]] item. If it points into a larger file, grep the heading and read to the next `## `; never read that file whole. Write it up as the next numbered story, at the depth of the project's existing shipped stories. Then **stop and let Jamie review** — do not plan and implement in one session. |
 | `planned` | Read the story. Confirm scope with Jamie, then implement. |
 | `in-progress` | Read the story's session log for where it stopped. Resume there. |
-| `verified` | Commit. |
-| `committed` | Deploy / promote per the project's own runbook. |
-| `deployed` | Smoke-check, then mark `done` and report what the next work is. |
+| `verified` | Commit, then push to `origin/staging` — don't wait on CI. |
+| `committed` | Promote per the project's own runbook, **only once the batch is ready** — see *Deploying in batches*. Otherwise leave it queued and say so. |
+| `deployed` | Smoke-check, then mark `done`, drain any `open-work.md` row this discharges (see *Finishing a step*), and report what the next work is. |
 
-Projects differ in shape. `scheduling` has a phase roadmap (`roadmap-phases.md`,
-`## Phase N` sections) so its unstoried work comes from there. `mycreditcard.guru`
-has no roadmap — its lettered phases are all done and remaining work is listed in
-the index's own table. **Read the index and follow what it points at**; don't
-assume a file exists because another project has one.
+**Read the index and follow what it points at.** Don't assume a file exists
+because another project has one — and don't assume a file that *used* to be the
+source still is. Both projects have now outlived their roadmaps: `scheduling`'s
+phases all shipped and `roadmap-phases.md` moved to `archive/`,
+`mycreditcard.guru`'s lettered phases are done. Unstoried work comes from
+[[inbox]] and the index's own open-work table in both. A roadmap is a shape a
+project may pass through, not one it keeps.
 
 Confirm the routing in one line before acting — *"Phase 0 is `needs-planning`;
 I'll write story 08 from the roadmap section and stop for your review"* — so
@@ -219,8 +254,13 @@ the top of `inbox.md`.** Read it on **every** session, not just
 closing message Jamie scrolled past.
 
 - **Name the open count in the routing line**, e.g. *"Phase 0 is `planned`; 2
-  questions are waiting on you."* Then give the one-line gist of each and let
-  Jamie choose whether to answer now or defer. Do not re-explain them at length.
+  questions are waiting on you."* Then **put them to him with `AskUserQuestion`
+  — one question per item, and always a "Defer — answer later" option alongside
+  the real answers.** Answering has to be one keystroke and so does skipping.
+  The question text is the one-line gist, not a re-explanation. Jamie has asked
+  for the tool form twice ("actually ask me with the ask user skill", "include
+  defer answer if I can as an option"); prose inviting him to reply is what he
+  scrolls past, which is the whole reason this list exists.
 - **Anything you would have put in a closing message that needs an answer goes
   in that section instead** — appended at the bottom of it, with what it blocks.
   A question that blocks nothing stays in the closing message and dies there.
@@ -238,8 +278,9 @@ closing message Jamie scrolled past.
 - **Cap is 7.** At the cap, resolve or downgrade one before adding. Items that
   will sit for weeks are backlog, not questions — move them to the index's
   "Needs Jamie, not code" / "Needs a decision, not a test" sections.
-- Genuinely *blocking* questions still use `AskUserQuestion` mid-session. The
-  list is for what can wait a session or two.
+- Genuinely *blocking* questions use `AskUserQuestion` mid-session as well —
+  those get **no** Defer option, because deferring is the thing that blocks.
+  The list is for what can wait a session or two.
 - **When the item is an action Jamie can just run, give the exact command(s),
   not a paragraph explaining the situation.** A sentence of *why* is fine
   above them, but the thing Jamie reads last must be copy-pasteable — not a
@@ -289,11 +330,11 @@ kind of work, so the model follows for free:
 |---|---|---|
 | `needs-decision`, `needs-planning` | Opus (or Fable for open-ended exploration) | Judgment-heavy: weighing tradeoffs, writing a story from scratch. |
 | `planned`, `in-progress` (real implementation) | Opus | Multi-file changes benefit from stronger reasoning. |
-| `verified` → commit, `committed` → deploy/watch CI, `deployed` → smoke-check | Sonnet | Mechanical or supervisory — running commands and reading output, not deciding anything. |
+| `verified` → commit + push, `committed` → promote, `deployed` → smoke-check | Sonnet | Mechanical or supervisory — running commands and reading output, not deciding anything. |
 | the `review` lane | Opus | Finding a real defect in a diff is judgment, not pattern-matching. |
 
-Say it as part of the one-line routing confirmation, e.g. *"`committed` — I'll
-push and watch CI; Sonnet is enough for this one."*
+Say it as part of the one-line routing confirmation, e.g. *"`committed` — three
+stories pending, I'll promote and smoke-check; Sonnet is enough for this one."*
 
 If the recommended model differs from the model currently active, **stop and
 wait** for Jamie to switch (`/model`) or explicitly say to proceed anyway —
@@ -338,9 +379,25 @@ twice. Written in this order, the block has nothing left to say but pointers.
 3. **Did the session turn up work nobody has storied?** One row in "Open work
    not yet storied" (`open-work.md` when the index is split). A deliberate
    non-fix goes in "Open items", same file.
+3a. **Going the other way — did this session's promote discharge an existing
+   row?** A row that reads "stays until story N ships / lands on `main`" does
+   not delete itself the moment that becomes true; something has to notice.
+   Whenever a story reaches `done` (promoted to `main`), `grep -n` that story's
+   number in `open-work.md` and delete every row whose stay-clause is now
+   satisfied. This is a `deploy`-lane duty at the `deployed`→`done` step, since
+   that lane is the one confirming the promote. Skipping it is exactly how 17
+   rows in `scheduling`'s `open-work.md` sat stale for days after their stories
+   landed on `main` — each one still correctly *worded* as conditional, just
+   never re-checked once the condition flipped.
 4. Update the story's row in the **Stories** table (`ledger.md` when split), and
    the **Phases** table in the index if the project has one. These rows are the status ledger — when one
    disagrees with the position block, this is the one that was left stale.
+   **A row is a status, not a session log — cap the Status cell at ~200
+   characters**: step, promote SHA, version, one clause of why. CI run IDs,
+   build timestamps, per-route smoke results and what deviated go in the story's
+   session log, which step 1 already gave them. `scheduling`'s `ledger.md` grew
+   to 104 KB this way — larger than the `README.md` whose size forced the split
+   — with 23 rows over 2,000 characters and one at 4,604.
 5. **Anything needing an answer or action from Jamie → `inbox.md`'s
    `## FOR JAMIE`**, with what it blocks and the exact command if there is one.
    Say it in the closing message *as well* — but the file is what survives. A
@@ -393,9 +450,17 @@ index, `ARCHITECTURE.md`/`docs/arch` if code-binding, `inbox.md`, position
 block) and nothing is left mid-air — not that the whole project is finished.
 A `needs-planning` session that stopped for Jamie's review, per the routing
 table, is **done** with reason "stopped for review, as the step requires" —
-that is the correct exit, not an open loop. Reserve **not done** for a
-session that is mid-step with no owner written yet, or is waiting on an
-answer it hasn't gotten.
+that is the correct exit, not an open loop. Likewise, an `impl` session that
+carried a story from `planned` through `verified` to `committed` — commit
+pushed, CI left running — is **done** even though promote/smoke-check remain.
+Those are the `committed` and `deployed` steps, routed to the `deploy` lane in
+a separate session by design, and a queued story waiting on its batch is the
+expected resting state, not an open loop (see "Deploying in batches"). Judge "done" against **this
+session's lane and step**, never against the story's full lifecycle: don't
+downgrade to "not done" just because a later step, owned by a different
+lane, hasn't happened yet. Reserve **not done** for a session that is
+mid-step with no owner written yet, or is waiting on an answer it hasn't
+gotten.
 
 ## Migrating a repo into this layout
 
