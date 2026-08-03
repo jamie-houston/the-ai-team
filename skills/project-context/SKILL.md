@@ -81,9 +81,7 @@ contiguous `>` lines after `CURRENT POSITION` and fail over 15.
 ## Running sessions in parallel
 
 Several sessions may be open on the same project at once. **At most one of them
-implements.** That lane owns the repo's working tree, the repo's git writes, and
-the CURRENT POSITION block. Every other lane — planning, review, deploy-watch,
-docs — writes only its own story file and its own rows.
+implements.** The lane table below is the authority on what each may write.
 
 **Claim before you write.** The index carries a `## Lanes in flight` table. Add
 your row as your *first* write and delete it when you close:
@@ -131,36 +129,22 @@ can tell parallel terminals apart.
 
 ### Deploying in batches
 
-**The `impl` lane pushes; the `deploy` lane promotes.** A push to
-`origin/staging` is what runs CI, so it belongs to the session that made the
-commit — one story per CI run, and a red is attributable to the story whose
-context is still warm. Batch the pushes instead and N stories hit CI as one
-blob, which turns every red into a bisect across all of them. Push and **don't
-wait on CI**: the next session's first act is checking whether `origin/staging`
-is green, and if it isn't, that is the lane.
-
-**Promoting is what batches.** The queue is a fact git already holds — no
-counter, no vault field to keep in sync:
+**The `impl` lane pushes; the `deploy` lane promotes** — pushing is what runs
+CI, so it belongs to the session that made the commit. Promoting is what
+batches, and the queue is a fact git already holds:
 
 ```bash
 git log origin/main..origin/staging --oneline
 ```
 
-Promote when any one of these is true, not after every impl:
+**Run that before offering `deploy` at routing time.** Under the threshold with
+impl work available, `deploy` is not the lane — say what's pending and route to
+the work.
 
-- **3+ stories pending**, or
-- **nothing in the index is ready to plan or implement** — drain the queue rather
-  than idle, or
-- **the batch fixes something broken in prod** — go now, ignore the count, or
-- **the batch carries a schema migration** — promote it earlier and smaller than
-  the count rule suggests. Several migrations landing together is the riskiest
-  shape there is, and one smoke check then has to cover all of them at once.
-
-**Read the range before offering `deploy` at routing time.** Under the threshold
-with impl work available, `deploy` is not the lane — say what's pending, and
-route to the work. Staging sitting ahead of prod carries its own cost: an
-environment-difference bug (`scheduling`'s staging/prod timezone mismatch) hides
-longer, and lands with more changes in flight to confuse attribution.
+> **Taking the `deploy` lane, or deciding whether to offer it? Read
+> `~/.claude/skills/project-context/references/deploying.md`** — the four
+> promote triggers, why pushes don't batch, and the cost of letting staging run
+> ahead of prod.
 
 ## Starting work — "work on the next phase"
 
@@ -229,15 +213,15 @@ phases all shipped and `roadmap-phases.md` moved to `archive/`,
 [[inbox]] and the index's own open-work table in both. A roadmap is a shape a
 project may pass through, not one it keeps.
 
-Confirm the routing in one line before acting — *"Phase 0 is `needs-planning`;
-I'll write story 08 from the roadmap section and stop for your review"* — so
+Confirm the routing in one line before acting — *"`needs-planning`; I'll write
+story 95 from the open-work row on tour screenshots and stop for your review"* — so
 Jamie can redirect before any tokens go into the wrong step. Name the lane in
 that line too.
 
-**Then claim it before your first write** — add your row to `## Lanes in flight`
-and set the story's Stories-table row to `in-progress` *now*, not at the end of
-the session. Status written only on finish is exactly what lets two lanes plan
-the same story twice.
+**Then claim it before your first write** — the `## Lanes in flight` row, *and*
+the story's ledger row set to `in-progress` *now*, not at the end of the
+session. Status written only on finish is what lets two lanes plan the same
+story twice.
 
 If a phase turns out bigger than one story, split it and say so. A story that
 would exceed ~8 KB is two stories.
@@ -308,18 +292,12 @@ closing message Jamie scrolled past.
 ### Verification checklists (e.g. `operations.md`'s manual sweep)
 
 The same clunky-answer problem shows up wherever Jamie is asked to browser-check
-a list of items and report back — a release sweep, a sign-off list. Use the same
-fix: a real Markdown checkbox per item, plus a bolded `**Notes:**` line reserved
-for what he found.
+a list and report back. Same fix: a real Markdown checkbox per item, plus a
+bolded `**Notes:**` line reserved for what he found.
 
-- **Check the box** when the step passed clean. **Leave it unchecked and fill
-  `Notes:`** when something's off — don't append a stray paragraph after the
-  item, and don't touch other items' boxes or notes.
-- An agent draining the list turns a filled `Notes:` line into a story or an
-  `open-work.md` row (never leaves the finding sitting only in the checklist),
-  then clears the note and checks the box.
-- When every item in a checklist section is checked, the section is done —
-  archive or delete it per that file's own instructions, same as inbox items.
+> **Writing or draining such a list? Read
+> `~/.claude/skills/project-context/references/checklists.md`** — what to do
+> with a filled `Notes:` line, and when a section is done.
 
 ### Which model for this step
 
@@ -464,28 +442,13 @@ gotten.
 
 ## Migrating a repo into this layout
 
-For a repo still carrying planning markdown. `scheduling` is done;
-`mycreditcard.guru` is not (its `docs/PROJECT_STATUS.md` is ~21.5KB).
+For a repo still carrying planning markdown — `mycreditcard.guru` is the one
+left (`docs/PROJECT_STATUS.md`, ~21.5 KB); `scheduling` is done. Nine steps,
+including what counts as code-binding and how to verify nothing was lost:
 
-1. **Inventory.** `find . -name '*.md' -not -path './node_modules/*' -exec wc -c {} \; | sort -rn`
-2. **Find what binds code**, and separate it from planning. Business rules,
-   invariants, non-obvious behavior, and locked architecture decisions stay — in
-   a new `ARCHITECTURE.md`. Phase plans, status, and history move.
-3. **Check whether the decisions are actually built.** Locked-but-unimplemented
-   decisions must be labelled as such, or a future session hunts for models that
-   do not exist. Read the schema and migration list, don't assume.
-4. **Mine the history log for spec.** A "decisions log" usually holds real
-   constraints mixed with narrative. The constraints are binding; extract them.
-5. **`mv` to the vault** — `git mv` fails across repository boundaries. Then
-   `git add -A` in the repo and commit the deletions.
-6. **Rewrite `CLAUDE.md`**: drop the moved pointers, add "planning docs live in
-   Obsidian; Jamie names the story file", point at `ARCHITECTURE.md`. Skipping
-   this leaves dangling pointers and is the whole reason the move works.
-7. **Grep wider than markdown.** Source comments, README links, and CI configs
-   reference doc paths too:
-   `grep -rn 'docs/PROGRESS\|docs/PRD\|docs/ROADMAP\|docs/backlog' --include='*.md' --include='*.ts' --include='*.tsx' --include='*.json' --include='*.yml' .`
-8. **Verify byte-for-byte** that nothing was lost:
-   `diff <(git show HEAD~1:docs/OLD.md) vault/new.md` — expect only the link
-   edits you made deliberately.
-9. Run the repo's verification bar before committing, even if the changes look
-   like comments only.
+> **Read `~/.claude/skills/project-context/references/migrating.md`.**
+
+Don't attempt a migration from memory — step 3 (are the locked decisions
+actually built?) and step 8 (byte-for-byte verify) are the ones that get
+skipped, and both are how content silently disappears.
+
