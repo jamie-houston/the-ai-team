@@ -47,6 +47,8 @@ by section name — and does not restate it.
 | What happened in a session | that story's session log |
 | Real work with no story yet | "Open work not yet storied" — in `open-work.md` if the index is split, else the index |
 | A deliberate non-fix, or a decision with no work attached | "Open items" — same file as above |
+| A story's status | the Stories table — `ledger.md` if the index is split, else the index |
+| How to run, deploy or bootstrap the thing | `operations.md` |
 | Something Jamie must do or answer | `inbox.md` → `## FOR JAMIE` |
 | Raw unshaped input from Jamie | `inbox.md` → bottom half |
 | Anything that binds the code | the repo — `ARCHITECTURE.md` / `docs/arch/` |
