@@ -192,6 +192,12 @@ Reconcile the two before acting:
   is nothing to plan, promote, or review → say that, and suggest not opening a
   second session rather than inventing work for it.
 
+**A gate on one lane is not a gate on all of them.** Check each lane against its
+own steps before reporting that nothing is available. A promote-to-main gate — a
+manual sweep owed, a sign-off pending — blocks `deploy` and nothing else; `plan`
+and `impl` are still open, and staging still accepts pushes. This has twice been
+reported as "no lane has available work" when there was plenty.
+
 Route on the **step**, and do exactly one step per session unless Jamie says
 otherwise:
 
@@ -354,6 +360,12 @@ twice. Written in this order, the block has nothing left to say but pointers.
    `ARCHITECTURE.md` / `docs/arch/`, not the vault. A constraint that lives only
    in the vault is invisible during a one-off task, which is the exact failure
    this layout prevents.
+2a. **Did the session add, move, or rename an environment variable?** Update the
+   env-var table in `operations.md` in the same session — name, which hosted
+   environments it is set in, whether a local `.env.*` also needs it, and what
+   consumes it. Jamie asked where a var goes 15 times in three days because the
+   answer was re-derived from the code each time instead of being written down
+   once.
 3. **Did the session turn up work nobody has storied?** One row in "Open work
    not yet storied" (`open-work.md` when the index is split). A deliberate
    non-fix goes in "Open items", same file.
@@ -401,10 +413,14 @@ history, or test names.
 
 ## Keep stories small
 
-A story is loaded whole, so its size is a recurring cost. Target **under 2,000
-tokens** (~8KB). When one grows past that it is usually two stories. If Jamie's
-file is already well over, say so with the number and offer to split it rather
-than silently appending.
+A story is loaded whole, so its size is a recurring cost. Target **under ~12 KB**
+(~3,000 tokens). Past that it is usually two stories: say so with the number and
+offer to split rather than silently appending.
+
+The cap was 8 KB and 73 of `scheduling`'s 96 stories broke it — most shipped
+fine at 10–14 KB, so the number was wrong, not the stories. 12 KB is set to
+what a working story actually costs, which is the point: a cap nothing respects
+buys nothing. The genuine outliers it still catches run 16–18 KB.
 
 ## Ending cleanly
 
