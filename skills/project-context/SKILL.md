@@ -1,6 +1,6 @@
 ---
 name: project-context
-description: Load and update project context from Jamie's Obsidian vault instead of from markdown in the repo, so sessions stay short and repos stay lean. Use when Jamie says "work on the next phase", "what's next", "pick up where we left off", "what was I working on", or names a story file; when finishing a step that needs its status written back; or when a repo is carrying planning markdown that should be migrated out to the vault. Takes an optional lane argument — `plan`, `impl`, `deploy`, `review`, `docs` — declaring what this session is for; with no argument it reads the lanes already in flight and offers the ones that can run alongside them.
+description: Load and update project context from Jamie's Obsidian vault instead of from markdown in the repo, so sessions stay short and repos stay lean. Use when Jamie says "work on the next phase", "what's next", "pick up where we left off", "what was I working on", or names a story file; when finishing a step that needs its status written back; or when a repo is carrying planning markdown that should be migrated out to the vault. Takes an optional lane argument — `plan`, `impl`, `deploy`, `review`, `docs` — declaring what this session is for; with no argument it reads the lanes already in flight and offers the ones that can run alongside them. `auto` runs one step headless under the work-loop dispatcher.
 ---
 
 # Project context
@@ -23,7 +23,7 @@ costs one cold write next time and nothing in between.
 ```
 side-projects/<project>/
   <project-name>.md        # hub: status, where things live, next steps, decisions
-  inbox.md                 # two-way queue: `## FOR JAMIE` on top, Jamie's dumps below
+  <project> inbox.md       # two-way queue: `## FOR JAMIE` on top, Jamie's dumps below
   stories/README.md        # ENTRY POINT: position, lanes, step machine, phases, ground rules
   stories/ledger.md        # story status table         ┐ split out of README once it
   stories/open-work.md     # open work + open items     │ passes ~30 KB — README is
@@ -32,6 +32,14 @@ side-projects/<project>/
   prd.md, progress.md      # requirements, history
   archive/                 # design handoffs, dead ends, spent roadmaps
 ```
+
+**The inbox is named `<project> inbox.md`, not `inbox.md`** — every project's
+tabs and quick-switcher entries would otherwise read "inbox" and be
+indistinguishable in Obsidian. Everywhere below that says `inbox.md` or
+`[[inbox]]` means that file; the index's "Where the rest lives" table names it
+exactly, so link it from there rather than guessing. **Never create a plain
+`inbox.md` alongside one** — `scheduling` carried both for two days and the
+item dumped in the unused copy went undrained.
 
 In the repo: `CLAUDE.md`, `README.md`, `ARCHITECTURE.md` (binding constraints
 only), and operational runbooks like `docs/DEPLOY.md`. Nothing else.
@@ -168,6 +176,13 @@ index contradicts the repo, the repo wins**: say so, fix the index, then proceed
 says what this session is for. Jamie may also just say it in words ("this one's
 a planning session"); same thing. The lane fixes what the session is allowed to
 write, per the table above; the step still decides *which* work it picks up.
+`auto` is headless dispatcher mode, not a lane: the session routes itself to
+the single best lane, runs one step with relaxed review gates, and ends with a
+machine-readable handoff.
+
+> **Running headless under the work loop (`/project-context auto`)? Read
+> `~/.claude/skills/project-context/references/headless.md`** — which gates
+> relax, which still halt, and the handoff the driver parses.
 
 Reconcile the two before acting:
 

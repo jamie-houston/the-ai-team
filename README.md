@@ -97,6 +97,16 @@ Quick-access commands for common workflows — type `/command-name` in Claude Co
 
 Includes scaffolding, testing, debugging, code review, refactoring, database, API development, and more across .NET, Node.js, and Next.js stacks. Run `claude /commands` to see the full list.
 
+## Work Loop
+
+`work-loop.sh` cycles through a project's queued work — planning stories, implementing them, deploying — without starting a session per task:
+
+```bash
+./work-loop.sh ~/src/jamie-houston/<project> [--max N] [--budget USD]
+```
+
+Each iteration is a fresh headless `claude -p "/project-context auto"` session that does exactly one step, writes status to the Obsidian vault, and exits with a JSON handoff the loop parses. Fresh minimal sessions are the cheap shape: a long-lived looping session re-reads its ever-growing context every turn and re-writes all of it at 1.25x after any pause past the 5-minute cache TTL, while here nothing idles between iterations and all inter-task state lives in the vault. The loop stops on its own at `needs-decision` steps, blockers, permission denials, or an empty queue; stop it yourself with `touch <repo>/.work-loop-stop`. Details in `skills/project-context/references/headless.md`.
+
 ## How It Works
 
 The tech lead orchestrator is the entry point for complex tasks. It:
