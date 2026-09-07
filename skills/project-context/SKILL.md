@@ -9,7 +9,25 @@ Planning docs live in **Obsidian**, not in the repo. The repo carries only what
 binds the code. Sessions load one story file, do one unit of work, write status
 back, and end.
 
-Vault root: `~/Documents/<vault>/areas/work/coding/side-projects/`
+Vault roots. A project lives under one of two, and the layout below is
+identical in both — only the parent differs:
+
+- **`areas/work/coding/side-projects/<project>/`** — coding projects. The common
+  case, and what most of this file's examples come from.
+- **`areas/<area>/<project>/`** — a project in a life area (`personal`, `home`,
+  `family`, `financial`) that has outgrown a single note and needs stories. The
+  vault's own convention is that a project *is* a note inside its area; a folder
+  here is the exception, taken only when the work needs a story ledger and a
+  position block.
+
+**Check which root a project uses before assuming a path.** An area-rooted
+project is usually configuration and real-world steps rather than code, which
+changes what a session can actually do: there is often no repo, so `deploy` is
+meaningless and `impl` cannot verify anything by running it, and most steps are
+work only Jamie can do off-machine. A session's realistic output there is a
+corrected script, a resolved question, or a written-up finding — **not** a ticked
+success criterion. The index says which case it is under "What is unusual about
+this project"; read that before routing.
 
 The cost reason: `CLAUDE.md` files that say "read PROGRESS.md and ROADMAP.md
 first" turn every one-off task into a directed 15K-token read. Moving those out
@@ -21,7 +39,7 @@ costs one cold write next time and nothing in between.
 ## Layout
 
 ```
-side-projects/<project>/
+<root>/<project>/              # side-projects/ or areas/<area>/ — see above
   <project-name>.md        # hub: status, where things live, next steps, decisions
   <project> inbox.md       # two-way queue: `## FOR JAMIE` on top, Jamie's dumps below
   stories/README.md        # ENTRY POINT: position, lanes, step machine, phases, ground rules
