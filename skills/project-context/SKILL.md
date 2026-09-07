@@ -82,11 +82,13 @@ don't grow the block. Prose is what makes a position block unmergeable: every
 session restates the last one's context to make its own paragraph read, and the
 block is what every session loads whole.
 
-The vault's `.git/hooks/pre-commit` enforces the cap on every
-`side-projects/*/stories/README.md`. Git does not version hooks, so **if the
-vault is ever re-cloned the hook is gone** — recover it with
-`git show <sha>:...` from the 2026-08-02 commit, or rewrite it: count the
-contiguous `>` lines after `CURRENT POSITION` and fail over 15.
+The vault's `pre-commit` hook enforces the cap on every story index — both
+`side-projects/*/stories/README.md` and `areas/personal/*/stories/README.md`.
+It lives in the vault's **tracked `.githooks/`** directory, so it survives a
+re-clone; the one step a fresh clone needs is
+`git config core.hooksPath .githooks`. (Until 2026-09-07 it sat in
+`.git/hooks/`, which git does not version, so it existed on exactly one
+machine and covered only side-projects.)
 
 ## Running sessions in parallel
 
