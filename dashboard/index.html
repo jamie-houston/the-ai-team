@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>work-loop</title>
+<style>
+:root {
+  --bg: #f7f7f5; --panel: #fff; --ink: #1c1c1a; --dim: #6b6b66; --line: #e2e2dd;
+  --accent: #4a6fa5; --live: #2e8b57; --warn: #b4632a; --code: #f0f0ec;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16161a; --panel: #1d1d22; --ink: #e6e6e2; --dim: #90908a; --line: #2e2e35;
+    --accent: #8ab0e0; --live: #6cc48d; --warn: #e0a06a; --code: #26262c;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 14px/1.5 ui-sans-serif, -apple-system, "Segoe UI", sans-serif;
+}
+code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+header {
+  position: sticky; top: 0; z-index: 5; background: var(--panel);
+  border-bottom: 1px solid var(--line); padding: 10px 16px;
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+}
+header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); display: inline-block; }
+.dot.live { background: var(--live); animation: pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .3; } }
+.stat { font-size: 12px; color: var(--dim); white-space: nowrap; }
+.stat b { color: var(--ink); font-weight: 600; }
+button {
+  font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer;
+}
+button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+button:disabled { opacity: .45; cursor: default; }
+#stop { margin-left: auto; }
+
+main { display: grid; grid-template-columns: 1.1fr 1fr; gap: 14px; padding: 14px; align-items: start; }
+@media (max-width: 950px) { main { grid-template-columns: 1fr; } }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 14px; }
+.panel > summary, .panel > .head {
+  padding: 9px 13px; font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--dim); cursor: pointer; list-style: none;
+  display: flex; gap: 8px; align-items: center;
+}
+.panel > summary::-webkit-details-marker { display: none; }
+.panel > summary::before { content: "▸"; font-size: 10px; }
+.panel[open] > summary::before { content: "▾"; }
+.count { background: var(--code); color: var(--ink); border-radius: 20px; padding: 0 7px; font-size: 11px; }
+.body { padding: 0 13px 13px; }
+
+/* The stream stays put while the panels beside it scroll. Sticky has to sit on
+   the grid item itself — a child of it has no room to move. */
+#live { position: sticky; top: 62px; }
+@media (max-width: 950px) { #live { position: static; } }
+#stream { height: calc(100vh - 118px); overflow-y: auto; padding: 10px 13px; }
+.iter { margin: 14px 0 6px; font-size: 12px; font-weight: 600; color: var(--accent);
+        border-top: 1px solid var(--line); padding-top: 10px; }
+.iter:first-child { border-top: 0; margin-top: 0; }
+.ev { display: flex; gap: 10px; font-size: 12.5px; padding: 1px 0; }
+.ev .t { color: var(--dim); font-variant-numeric: tabular-nums; flex: none; }
+.ev.tool .n { color: var(--accent); }
+.ev.text { color: var(--dim); }
+.ev.result { color: var(--ink); background: var(--code); border-radius: 6px; padding: 6px 8px; margin-top: 6px; }
+.ev.finish { color: var(--warn); font-weight: 600; margin-top: 10px; }
+
+.pos { white-space: pre-wrap; margin: 0; font-size: 13px; }
+.pos div { margin-bottom: 4px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th { text-align: left; color: var(--dim); font-weight: 600; border-bottom: 1px solid var(--line); padding: 5px 6px; }
+td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+.scroll { max-height: 420px; overflow-y: auto; }
+
+.item { border-top: 1px solid var(--line); padding: 12px 0; }
+.item:first-child { border-top: 0; }
+.slug { font-family: ui-monospace, monospace; font-size: 12.5px; color: var(--accent); font-weight: 600; }
+.item .text { white-space: pre-wrap; margin: 6px 0 8px; font-size: 13px; }
+textarea {
+  width: 100%; min-height: 52px; font: inherit; font-size: 13px; padding: 7px;
+  border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); resize: vertical;
+}
+.row { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+.msg { font-size: 12px; color: var(--dim); }
+.msg.bad { color: var(--warn); }
+.answered { border-left: 2px solid var(--live); padding-left: 9px; }
+a { color: var(--accent); }
+.empty { color: var(--dim); font-size: 13px; padding: 4px 0; }
+code { background: var(--code); border-radius: 4px; padding: 1px 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="dot" id="dot"></span>
+  <h1 id="project">work-loop</h1>
+  <span class="stat" id="s-iter"></span>
+  <span class="stat" id="s-lane"></span>
+  <span class="stat" id="s-model"></span>
+  <span class="stat" id="s-time"></span>
+  <span class="stat" id="s-cost"></span>
+  <span class="stat" id="s-tok"></span>
+  <button id="stop">Stop after this step</button>
+</header>
+
+<main>
+  <section id="live">
+    <div class="panel"><div class="head">Live</div><div id="stream"></div></div>
+  </section>
+
+  <section>
+    <details class="panel" open><summary>Current position</summary>
+      <div class="body"><div class="pos" id="position"></div></div></details>
+
+    <details class="panel" open><summary>Lanes in flight <span class="count" id="c-lanes">0</span></summary>
+      <div class="body" id="lanes"></div></details>
+
+    <details class="panel" open><summary>For Jamie <span class="count" id="c-inbox">0</span></summary>
+      <div class="body" id="inbox"></div></details>
+
+    <details class="panel" open><summary>Open work <span class="count" id="c-work">0</span></summary>
+      <div class="body scroll" id="work"></div></details>
+
+    <details class="panel"><summary>Open items <span class="count" id="c-items">0</span></summary>
+      <div class="body scroll" id="items"></div></details>
+
+    <details class="panel"><summary>Stories <span class="count" id="c-stories">0</span></summary>
+      <div class="body scroll" id="stories"></div></details>
+  </section>
+</main>
+
+<script>
+let seq = 0, startedAt = null, running = false, obsidian = { vault: "", dir: "" };
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// Just enough markdown for what the vault actually writes: wiki links, bold,
+// italics and inline code. Whitespace is preserved by CSS, so lists render as
+// they were typed.
+function md(s) {
+  return esc(s)
+    .replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, target, label) => {
+      const text = esc(label || target);
+      if (!obsidian.vault) return `<b>${text}</b>`;
+      const file = `${obsidian.dir}/${target}`;
+      return `<a href="obsidian://open?vault=${encodeURIComponent(obsidian.vault)}` +
+             `&file=${encodeURIComponent(file)}" title="${esc(target)}">${text}</a>`;
+    })
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+    .replace(/(^|\W)\*([^*\n]+)\*/g, "$1<i>$2</i>");
+}
+
+const clock = s => (s = Math.max(0, s),
+  `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`);
+const human = n => n >= 1e6 ? (n / 1e6).toFixed(1) + "M"
+                 : n >= 1e3 ? (n / 1e3).toFixed(1) + "k" : String(n ?? 0);
+
+// ------------------------------------------------------------------ stream
+
+const stream = document.getElementById("stream");
+let iterStart = 0;
+
+function atBottom() {
+  return stream.scrollHeight - stream.scrollTop - stream.clientHeight < 60;
+}
+
+function addEvent(ev) {
+  const stick = atBottom();
+  const el = document.createElement("div");
+  const stamp = ev.t && iterStart ? clock(ev.t - iterStart) : "";
+  if (ev.kind === "iteration") {
+    iterStart = ev.t;
+    el.className = "iter";
+    el.textContent = `Iteration ${ev.iter} — ${ev.lane || "routing"}${ev.step ? " / " + ev.step : ""}`;
+  } else if (ev.kind === "model") {
+    el.className = "ev text";
+    el.innerHTML = `<span class="t">${stamp}</span><span>model <b>${esc(ev.model)}</b></span>`;
+  } else if (ev.kind === "tool") {
+    el.className = "ev tool";
+    el.innerHTML = `<span class="t">${stamp}</span><span><span class="n mono">${esc(ev.name)}</span> ` +
+                   `<span class="mono">${esc(ev.arg)}</span></span>`;
+  } else if (ev.kind === "text") {
+    el.className = "ev text";
+    el.innerHTML = `<span class="t">${stamp}</span><span>${md(ev.text)}</span>`;
+  } else if (ev.kind === "result") {
+    el.className = "ev result";
+    el.innerHTML = `<div>${md(ev.completed || "(nothing)")}</div>` +
+      `<div class="msg">${ev.duration}s · $${(ev.cost || 0).toFixed(2)} · ` +
+      `${human(ev.in)} in / ${human(ev.out)} out / ${human(ev.cache)} cached · ` +
+      `<b>${esc(ev.status)}</b>${ev.reason ? " — " + esc(ev.reason) : ""}</div>`;
+  } else if (ev.kind === "finish") {
+    el.className = "ev finish";
+    el.textContent = ev.headline + (ev.detail ? " — " + ev.detail : "");
+  } else {
+    return;
+  }
+  stream.appendChild(el);
+  if (stick) stream.scrollTop = stream.scrollHeight;
+}
+
+async function pollEvents() {
+  try {
+    const r = await fetch(`/api/events?from=${seq}`);
+    const d = await r.json();
+    if (d.from !== seq) { stream.innerHTML = ""; seq = 0; return; }
+    d.events.forEach(addEvent);
+    seq = d.next;
+  } catch (e) { /* server gone; the state poll reports it */ }
+}
+
+// ------------------------------------------------------------------- state
+
+// Panels redraw on a 3s poll, which would reset scroll position and blow away
+// a half-ticked checkbox. Only redraw when the data behind one actually moved.
+const memo = {};
+function changed(key, data) {
+  const s = JSON.stringify(data);
+  if (memo[key] === s) return false;
+  memo[key] = s;
+  return true;
+}
+
+function table(el, t, render) {
+  if (!t.rows.length) { el.innerHTML = '<div class="empty">Nothing here.</div>'; return; }
+  el.innerHTML = `<table><thead><tr>${t.headers.map(h => `<th>${md(h)}</th>`).join("")}</tr></thead>` +
+    `<tbody>${t.rows.map(render).join("")}</tbody></table>`;
+}
+
+function renderInbox(items) {
+  const el = document.getElementById("inbox");
+  document.getElementById("c-inbox").textContent = items.length;
+  // Never redraw while Jamie is typing into one of these boxes.
+  if (el.contains(document.activeElement)) { delete memo.inbox; return; }
+  if (!changed("inbox", items)) return;
+  if (!items.length) { el.innerHTML = '<div class="empty">Queue is empty.</div>'; return; }
+  el.innerHTML = items.map(i => `
+    <div class="item ${i.answer ? "answered" : ""}" data-slug="${esc(i.slug)}">
+      <div class="slug">[${esc(i.slug)}]</div>
+      <div class="text">${md(i.body)}</div>
+      <textarea placeholder="Answer…">${esc(i.answer)}</textarea>
+      <div class="row"><button>Save answer</button><span class="msg"></span></div>
+    </div>`).join("");
+  el.querySelectorAll(".item").forEach((node, n) => {
+    node.querySelector("button").onclick = () => saveAnswer(node, items[n].answer);
+  });
+}
+
+async function saveAnswer(node, expected) {
+  const btn = node.querySelector("button"), msg = node.querySelector(".msg");
+  btn.disabled = true; msg.className = "msg"; msg.textContent = "saving…";
+  const r = await fetch("/api/answer", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      slug: node.dataset.slug, text: node.querySelector("textarea").value, expected,
+    }),
+  });
+  const d = await r.json();
+  btn.disabled = false;
+  if (d.result === "ok") { msg.textContent = "saved"; setTimeout(pollState, 400); }
+  else { msg.className = "msg bad"; msg.textContent = d.result + " — reload and retry"; }
+}
+
+function renderWork(t) {
+  const el = document.getElementById("work");
+  document.getElementById("c-work").textContent = t.rows.length;
+  if (!changed("work", t)) return;
+  table(el, t, r => `<tr data-line="${esc(r.line)}">` +
+    `<td><input type="checkbox" ${r.ready ? "checked" : ""} title="ready to story"></td>` +
+    r.cells.slice(1).map(c => `<td>${md(c)}</td>`).join("") + "</tr>");
+  el.querySelectorAll("tr[data-line]").forEach(tr => {
+    const box = tr.querySelector("input");
+    if (box) box.onchange = () => setReady(tr, box);
+  });
+}
+
+async function setReady(tr, box) {
+  box.disabled = true;
+  const r = await fetch("/api/ready", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ line: tr.dataset.line, ready: box.checked }),
+  });
+  const d = await r.json();
+  box.disabled = false;
+  if (d.result !== "ok") { box.checked = !box.checked; alert("Row changed on disk — reloading."); }
+  pollState();
+}
+
+async function pollState() {
+  let s;
+  try {
+    s = await (await fetch("/api/state")).json();
+  } catch (e) {
+    document.getElementById("dot").className = "dot";
+    return;
+  }
+  obsidian = { vault: s.vault_name, dir: s.story_dir };
+  running = s.running;
+  document.getElementById("dot").className = "dot" + (running ? " live" : "");
+  document.getElementById("project").textContent =
+    s.project + (s.start && s.start.lane ? ` [${s.start.lane}]` : "");
+  document.title = (running ? "▶ " : "") + s.project + " — work-loop";
+
+  const cur = s.current || {};
+  const max = s.start ? s.start.max : "";
+  document.getElementById("s-iter").innerHTML =
+    s.iterations.length ? `iter <b>${cur.iter}/${max}</b>` : "";
+  document.getElementById("s-lane").innerHTML =
+    cur.lane ? `<b>${esc(cur.lane)}</b>${cur.step ? " / " + esc(cur.step) : ""}` : "";
+  document.getElementById("s-model").innerHTML = cur.model ? `model <b>${esc(cur.model)}</b>` : "";
+  document.getElementById("s-cost").innerHTML = `<b>$${s.totals.cost.toFixed(2)}</b>`;
+  document.getElementById("s-tok").innerHTML =
+    `${human(s.totals.in)} in / ${human(s.totals.out)} out / ${human(s.totals.cache)} cached`;
+  startedAt = cur.t || null;
+
+  const stop = document.getElementById("stop");
+  stop.disabled = !running || s.stopping;
+  stop.textContent = s.stopping ? "Stopping after this step" : "Stop after this step";
+  if (s.finish) stop.textContent = s.finish.headline;
+
+  if (changed("position", s.position))
+    document.getElementById("position").innerHTML =
+      s.position.map(l => `<div>${md(l)}</div>`).join("") || '<div class="empty">No position block.</div>';
+
+  document.getElementById("c-lanes").textContent = s.lanes.rows.length;
+  if (changed("lanes", s.lanes))
+    table(document.getElementById("lanes"), s.lanes,
+      r => `<tr>${r.cells.map(c => `<td>${md(c)}</td>`).join("")}</tr>`);
+
+  renderInbox(s.for_jamie);
+  renderWork(s.open_work);
+
+  // Open items is a table in one project and bullets under sub-headings in
+  // another, so the server says which it found.
+  const items = document.getElementById("items");
+  document.getElementById("c-items").textContent =
+    s.open_items.table.rows.length || (s.open_items.text.match(/^\s*[-*] /gm) || []).length;
+  if (changed("items", s.open_items)) {
+    if (s.open_items.table.rows.length) {
+      table(items, s.open_items.table, r => `<tr>${r.cells.map(c => `<td>${md(c)}</td>`).join("")}</tr>`);
+    } else {
+      items.innerHTML = s.open_items.text
+        ? `<div class="pos" style="white-space:pre-wrap">${md(s.open_items.text)}</div>`
+        : '<div class="empty">Nothing here.</div>';
+    }
+  }
+
+  document.getElementById("c-stories").textContent = s.stories.rows.length;
+  if (changed("stories", s.stories))
+    table(document.getElementById("stories"), s.stories,
+      r => `<tr>${r.cells.map(c => `<td>${md(c)}</td>`).join("")}</tr>`);
+}
+
+document.getElementById("stop").onclick = async e => {
+  e.target.disabled = true;
+  await fetch("/api/stop", { method: "POST" });
+  pollState();
+};
+
+setInterval(() => {
+  document.getElementById("s-time").textContent =
+    startedAt && running ? clock(Date.now() / 1000 - startedAt) : "";
+}, 1000);
+
+pollEvents(); pollState();
+setInterval(pollEvents, 1000);
+setInterval(pollState, 3000);
+</script>
+</body>
+</html>
