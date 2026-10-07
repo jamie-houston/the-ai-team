@@ -102,10 +102,21 @@ Includes scaffolding, testing, debugging, code review, refactoring, database, AP
 `work-loop.sh` cycles through a project's queued work — planning stories, implementing them, deploying — without starting a session per task:
 
 ```bash
+workloop                                                    # prompts for project + iterations
 ./work-loop.sh ~/src/jamie-houston/<project> [--max N] [--budget USD]
 ```
 
-Each iteration is a fresh headless `claude -p "/project-context auto"` session that does exactly one step, writes status to the Obsidian vault, and exits with a JSON handoff the loop parses. Fresh minimal sessions are the cheap shape: a long-lived looping session re-reads its ever-growing context every turn and re-writes all of it at 1.25x after any pause past the 5-minute cache TTL, while here nothing idles between iterations and all inter-task state lives in the vault. The loop stops on its own at `needs-decision` steps, blockers, permission denials, or an empty queue; stop it yourself with `touch <repo>/.work-loop-stop`. Details in `skills/project-context/references/headless.md`.
+Run bare, it lists every vault project that has a `stories/` dir and a repo of the same name under `~/src/jamie-houston`, then asks how many iterations. (`workloop` is an alias for this script in `~/.zshrc`.) A running iteration prints its lane, step, and model, then one dim line per tool call, and closes with that step's tokens and cost against the cumulative total.
+
+Each iteration is a fresh headless `claude -p "/project auto"` session that does exactly one step, writes status to the Obsidian vault, and exits with a JSON handoff the loop parses. Fresh minimal sessions are the cheap shape: a long-lived looping session re-reads its ever-growing context every turn and re-writes all of it at 1.25x after any pause past the 5-minute cache TTL, while here nothing idles between iterations and all inter-task state lives in the vault. The loop stops on its own at `needs-decision` steps, blockers, permission denials, or an empty queue; stop it yourself with `touch <repo>/.work-loop-stop`. Details in `skills/project/references/headless.md`.
+
+### Dashboard
+
+Each run starts `dashboard/server.py` and prints its URL. The page is the full view of what the terminal only traces: the live event stream, plus the vault state the loop is working against — CURRENT POSITION, lanes in flight, the FOR JAMIE queue, open work and the story ledger, with `[[story]]` links opening in Obsidian.
+
+Two things on it write back to the vault: filling in a FOR JAMIE item's answer, and ticking `ready` on an open-work row — the marker a pinned `plan` loop needs before it will story a row. Both are surgical edits, and both refuse if the file moved under them, since other lanes are editing the same files. There is also a Stop button, which touches the same kill-switch file.
+
+It needs `python3` (stdlib only) and binds `127.0.0.1` on port 8787, taking the next free port when that one is busy — so a second loop on the same project gets its own. Events go to `~/.cache/work-loop/<project>[-lane].ndjson`, which is also where to look after a run has ended.
 
 ## How It Works
 

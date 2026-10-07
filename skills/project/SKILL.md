@@ -1,5 +1,5 @@
 ---
-name: project-context
+name: project
 description: Load and update project context from Jamie's Obsidian vault instead of from markdown in the repo, so sessions stay short and repos stay lean. Use when Jamie says "work on the next phase", "what's next", "pick up where we left off", "what was I working on", or names a story file; when finishing a step that needs its status written back; or when a repo is carrying planning markdown that should be migrated out to the vault. Takes an optional lane argument — `plan`, `impl`, `deploy`, `review`, `docs` — declaring what this session is for; with no argument it reads the lanes already in flight and offers the ones that can run alongside them. `auto` runs one step headless under the work-loop dispatcher.
 ---
 
@@ -172,7 +172,7 @@ impl work available, `deploy` is not the lane — say what's pending and route t
 the work.
 
 > **Taking the `deploy` lane, or deciding whether to offer it? Read
-> `~/.claude/skills/project-context/references/deploying.md`** — the four
+> `~/.claude/skills/project/references/deploying.md`** — the four
 > promote triggers, why pushes don't batch, and the cost of letting staging run
 > ahead of prod.
 
@@ -192,16 +192,20 @@ index contradicts the repo, the repo wins**: say so, fix the index, then proceed
 
 ### Declaring the lane
 
-**`/project-context <lane>`** — `plan`, `impl`, `deploy`, `review`, `docs` —
+**`/project <lane>`** — `plan`, `impl`, `deploy`, `review`, `docs` —
 says what this session is for. Jamie may also just say it in words ("this one's
 a planning session"); same thing. The lane fixes what the session is allowed to
 write, per the table above; the step still decides *which* work it picks up.
 `auto` is headless dispatcher mode, not a lane: the session routes itself to
 the single best lane, runs one step with relaxed review gates, and ends with a
-machine-readable handoff.
+machine-readable handoff. **`auto <lane>` pins it** — `work-loop.sh --lane` —
+so the session may take only that lane's steps and reports `empty` instead of
+routing elsewhere when it has none. Pinning is what lets two loops run on one
+project: pin the `plan` loop, leave the other unpinned so it takes `impl` and
+falls through to `deploy` when the promote threshold trips.
 
-> **Running headless under the work loop (`/project-context auto`)? Read
-> `~/.claude/skills/project-context/references/headless.md`** — which gates
+> **Running headless under the work loop (`/project auto`)? Read
+> `~/.claude/skills/project/references/headless.md`** — which gates
 > relax, which still halt, and the handoff the driver parses.
 
 Reconcile the two before acting:
@@ -241,7 +245,7 @@ otherwise:
 | Step | Do this |
 |---|---|
 | `needs-decision` | Two or more candidates and no obvious winner. **Present them with sizes and tradeoffs and ask Jamie to pick** — do not choose silently. Then update the position to the chosen work's real step and re-route. |
-| `needs-planning` | Read **only** the source the index points at — usually a row of "open work not yet storied", or an [[inbox]] item. If it points into a larger file, grep the heading and read to the next `## `; never read that file whole. Write it up as the next numbered story, at the depth of the project's existing shipped stories. Then **stop and let Jamie review** — do not plan and implement in one session. |
+| `needs-planning` | Read **only** the source the index points at — usually a row of "open work not yet storied", or an [[inbox]] item. If it points into a larger file, grep the heading and read to the next `## `; never read that file whole. Write it up as the next numbered story, at the depth of the project's existing shipped stories. Then **stop and let Jamie review** — do not plan and implement in one session. **Most unstoried rows carry a gate note in `Notes:`** — *"deliberately not planned yet"*, *"don't build it until Dave says he does this"*, *"flag only"*. A gate note means the row is **not** plannable, whatever its position in the list; the note is a prior session's reasoning, not a caveat to work around. **`ready` in the row's first cell** is the explicit opposite — Jamie has cleared it — and is the only thing a pinned `plan` loop may take (see `references/headless.md`). The rule is the position, not the column's name: `scheduling` keeps it in a `#` column that also holds sort priorities, `mycreditcard.guru` in a leading column that holds nothing else. A project whose table has no leading column gets one before a `plan` loop can run on it. |
 | `planned` | Read the story. Confirm scope with Jamie, then implement. |
 | `in-progress` | Read the story's session log for where it stopped. Resume there. |
 | `verified` | Commit, then push to `origin/staging` — don't wait on CI. |
@@ -339,7 +343,7 @@ a list and report back. Same fix: a real Markdown checkbox per item, plus a
 bolded `**Notes:**` line reserved for what he found.
 
 > **Writing or draining such a list? Read
-> `~/.claude/skills/project-context/references/checklists.md`** — what to do
+> `~/.claude/skills/project/references/checklists.md`** — what to do
 > with a filled `Notes:` line, and when a section is done.
 
 ### Which model for this step
@@ -499,7 +503,7 @@ For a repo still carrying planning markdown — `mycreditcard.guru` is the one
 left (`docs/PROJECT_STATUS.md`, ~21.5 KB); `scheduling` is done. Nine steps,
 including what counts as code-binding and how to verify nothing was lost:
 
-> **Read `~/.claude/skills/project-context/references/migrating.md`.**
+> **Read `~/.claude/skills/project/references/migrating.md`.**
 
 Don't attempt a migration from memory — step 3 (are the locked decisions
 actually built?) and step 8 (byte-for-byte verify) are the ones that get
