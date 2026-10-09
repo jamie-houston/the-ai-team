@@ -76,6 +76,7 @@ by section name — and does not restate it.
 | A story's status | the Stories table — `ledger.md` if the index is split, else the index |
 | How to run, deploy or bootstrap the thing | `operations.md` |
 | Something Jamie must do or answer | `inbox.md` → `## FOR JAMIE` |
+| A to-do the session turns up for Jamie's life (not this project's work) | the matching `areas/` note's `## Backlog`, tagged `— @context · m.30 ·`. **Not Todoist** unless it's dated or he's doing it now ("backlog first", `_hermes/task-system.md` → Capture rule) |
 | Raw unshaped input from Jamie | `inbox.md` → bottom half |
 | Anything that binds the code | the repo — `ARCHITECTURE.md` / `docs/arch/` |
 | Where the next session starts | index → CURRENT POSITION |
