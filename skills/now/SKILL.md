@@ -9,7 +9,14 @@ A thin wrapper over `what-now.py` on the Hermes container. The script owns
 collecting, filtering, ranking and completing. This skill only translates what
 Jamie says into arguments and prints the result. Don't re-rank, re-filter or add
 items, and never edit the vault notes or Todoist yourself: `done` goes through
-the script so the strike and the Activity-log line come out exactly once.
+the script so the `[x] … ✅ date` tick and the Activity-log line come out exactly once.
+
+Other Todoist changes Jamie asks for after a list (promote a backlog item, set or
+clear a due date, add a task) go through `todoist-ops.py` in the same scripts
+directory, never the API or a copied token: `promote <b-id>… --via claude`,
+`due <t-id> <date|none> --via claude`, `create …`. Run `--dry-run` first when the
+change wasn't spelled out, and relay the JSON it prints. Spec:
+`resources/task-system/06-platform.md`.
 
 ## Asking
 
@@ -42,6 +49,25 @@ valid answer. Say so in one line.
 
 Keep the `n` → `id` mapping from this output. "done 1 3" refers to it.
 
+## What's open for X
+
+"What's open for monthly budget / basement / Financial?" is a query, not a time
+budget. Map it to one flag and leave out `--minutes` and `--device`:
+
+- **A topic** (a `#tag` on vault lines, or a Todoist label) → `--topic monthly-budget`.
+- **A project** → `--project <todoist-label or note name>`. Resolve a spoken name
+  to the note's `todoist-label` first ("basement" → `basement-flood`):
+  `grep -rh '^todoist-label:' areas/` in the vault, or ask if two fit.
+- **An area** (home, work, personal, family, financial) → `--area financial`.
+- **"Due this week"** → `--due-by YYYY-MM-DD` (it combines with the others).
+
+```bash
+ssh hermes@10.0.1.49 "python3 /home/hermes/.hermes/scripts/what-now.py --topic monthly-budget --json"
+```
+
+It lists everything open that matches, vault + Todoist, `@waiting` included.
+Print it the same way, marking `@waiting` items, and keep the `n` → `id` mapping.
+
 ## Completing
 
 "done 1 3" → look up the ids from the most recent list in this conversation and
@@ -52,7 +78,7 @@ ssh hermes@10.0.1.49 "python3 /home/hermes/.hermes/scripts/what-now.py done <id1
 ```
 
 Relay each output line as is. A `t…` id closes the Todoist task (the 06:00
-sweep logs it). A `b…` id strikes the backlog line and logs it. If there is no
+sweep logs it). A `b…` id ticks the vault line (`- [x] … ✅ date`) and logs it. If there is no
 list in this conversation yet, or a number isn't on it, ask. Don't guess an id.
 "no open backlog item" means the line was already done or edited since the list
 was printed. Say so and offer to re-run the list.

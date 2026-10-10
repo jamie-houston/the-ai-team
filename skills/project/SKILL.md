@@ -76,7 +76,7 @@ by section name — and does not restate it.
 | A story's status | the Stories table — `ledger.md` if the index is split, else the index |
 | How to run, deploy or bootstrap the thing | `operations.md` |
 | Something Jamie must do or answer | `inbox.md` → `## FOR JAMIE` |
-| A to-do the session turns up for Jamie's life (not this project's work) | the matching `areas/` note's `## Backlog`, tagged `— @context · m.30 ·`. **Not Todoist** unless it's dated or he's doing it now ("backlog first", `_hermes/task-system.md` → Capture rule) |
+| A to-do the session turns up for Jamie's life (not this project's work) | the matching `areas/` note's `## Backlog`, as `- [ ] <item> — @context · m.30 ·` (format: `_hermes/task-system.md` rule 2). **Not Todoist** unless it's dated or he's doing it now ("backlog first", `_hermes/task-system.md` → Capture rule) |
 | Raw unshaped input from Jamie | `inbox.md` → bottom half |
 | Anything that binds the code | the repo — `ARCHITECTURE.md` / `docs/arch/` |
 | Where the next session starts | index → CURRENT POSITION |
@@ -190,6 +190,15 @@ prevent.
 Then verify rather than trust — the index records intent at last write, and the
 tree may have moved. `git log --oneline -5` and `git status` is enough. **If the
 index contradicts the repo, the repo wins**: say so, fix the index, then proceed.
+
+**Open tasks for the project — at routing, or when Jamie asks "what's open for
+<project>"** — come from one query over the vault and Todoist, using the index's
+`todoist-label:` frontmatter. Name the count in the routing line; list them only
+if asked. Skip it when the index has no label.
+
+```bash
+ssh hermes@10.0.1.49 "python3 /home/hermes/.hermes/scripts/what-now.py --project <todoist-label>"
+```
 
 ### Declaring the lane
 
