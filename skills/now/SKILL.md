@@ -14,7 +14,7 @@ the script so the `[x] … ✅ date` tick and the Activity-log line come out exa
 Other Todoist changes Jamie asks for after a list (promote a backlog item, set or
 clear a due date, add a task) go through `todoist-ops.py` in the same scripts
 directory, never the API or a copied token: `promote <b-id>… --via claude`,
-`due <t-id> <date|none> --via claude`, `create …`. Run `--dry-run` first when the
+`due <t-id> <date|none> --via claude`, `priority <t-id> <1-4> --via claude`, `create …`. Run `--dry-run` first when the
 change wasn't spelled out, and relay the JSON it prints. Spec:
 `resources/task-system/06-platform.md`.
 
