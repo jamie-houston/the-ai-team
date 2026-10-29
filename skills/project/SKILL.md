@@ -59,6 +59,12 @@ exactly, so link it from there rather than guessing. **Never create a plain
 `inbox.md` alongside one** — `scheduling` carried both for two days and the
 item dumped in the unused copy went undrained.
 
+**The inbox file is content only — frontmatter plus `## FOR JAMIE` and
+`## FROM JAMIE`, no instructions, no blurbs.** The file format, item shape,
+drain table and the delete-only rule live in
+`~/.claude/skills/project/references/inbox.md`; read it before draining or
+adding to an inbox, and strip any boilerplate you find in one.
+
 In the repo: `CLAUDE.md`, `README.md`, `ARCHITECTURE.md` (binding constraints
 only), and operational runbooks like `docs/DEPLOY.md`. Nothing else.
 
